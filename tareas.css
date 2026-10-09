@@ -1,0 +1,127 @@
+.topbar { justify-content: space-between; }
+
+.tasks-area {
+  flex: 1;
+  padding: 24px 30px;
+  background: #fff;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+.tasks-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tasks-head h1 {
+  font-family: Georgia, serif;
+  font-size: 25px;
+  font-weight: 400;
+}
+
+.tasks-head > button {
+  border: 0;
+  border-radius: 7px;
+  padding: 10px 16px;
+  background: #34322f;
+  color: #fff;
+  cursor: pointer;
+}
+
+.daily-limit {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border: 1px solid #e8e0d3;
+  border-radius: 10px;
+  background: #fdfbf7;
+}
+
+.daily-limit > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 9px;
+  font-size: 12px;
+}
+
+.daily-limit span,
+.daily-limit small {
+  color: #6b655b;
+}
+
+.daily-limit small {
+  display: block;
+  margin-top: 7px;
+  font-size: 10.5px;
+}
+
+.daily-progress {
+  height: 7px;
+  border-radius: 10px;
+  background: #e8e0d3;
+  overflow: hidden;
+}
+
+.daily-progress span {
+  display: block;
+  width: 60%;
+  height: 100%;
+  background: #8a806f;
+}
+
+.tabs {
+  display: flex;
+  gap: 28px;
+  margin-top: 16px;
+  border-bottom: 1px solid #e8e0d3;
+}
+
+.tabs button {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 8px 0;
+  background: transparent;
+  color: #6b655b;
+  font-size: 12px;
+}
+
+.tabs button.active {
+  border-color: #34322f;
+  color: #222;
+  font-weight: 600;
+}
+
+.task-row {
+  display: grid;
+  grid-template-columns: 22px 1.25fr 1fr 100px 95px 25px;
+  gap: 12px;
+  align-items: center;
+  min-height: 50px;
+  border-bottom: 1px solid #eee8de;
+  font-size: 12px;
+}
+
+.task-row span,
+.task-row time {
+  color: #8a8378;
+}
+
+.task-row em {
+  border-radius: 12px;
+  padding: 5px 8px;
+  font-size: 10px;
+  font-style: normal;
+  text-align: center;
+}
+
+.task-row em.pending { background: #f4e3bd; color: #81652d; }
+.task-row em.progress { background: #e5e9e4; color: #546558; }
+.task-row em.done { background: #dbe8d5; color: #4c6645; }
+
+@media (max-width: 800px) {
+  .tabs { gap: 14px; overflow-x: auto; }
+  .task-row { grid-template-columns: 22px 1fr auto; padding: 10px 0; }
+  .task-row span, .task-row time { display: none; }
+  .task-row strong { display: none; }
+}

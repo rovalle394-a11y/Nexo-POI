@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexo - Chat privado</title>
+  <link rel="stylesheet" href="chat-grupal.css" />
+  <link rel="stylesheet" href="chat-privado.css" />
+</head>
+<body>
+  <div class="window">
+    <div class="titlebar">
+      <div class="dot r"></div>
+      <div class="dot y"></div>
+      <div class="dot g"></div>
+    </div>
+
+    <div class="topbar">
+      <div class="logo">Nexo</div>
+      <div class="av">AT</div>
+    </div>
+
+    <div class="layout">
+      <nav class="sidebar">
+        <a class="item" href="home.html"><span class="icon">?</span> Inicio</a>
+        <a class="item active" href="chat-grupal.html"><span class="icon">?</span> Chats</a>
+        <a class="item" href="videollamada.html"><span class="icon">?</span> Videollamada</a>
+        <a class="item" href="tareas.html"><span class="icon">?</span> Tareas</a>
+        <a class="item" href="perfil.html"><span class="icon">?</span> Perfil</a>
+        <div class="spacer"></div>
+        <a class="item" href="index.html"><span class="icon">?</span> Cerrar sesion</a>
+      </nav>
+
+      <aside class="chats">
+        <h3>Chats</h3>
+        <input class="search" placeholder="Buscar chats..." />
+
+        <a class="chat-item active" href="chat-privado.html">
+          <div class="av">AT</div>
+          <div><b>Ana Torres</b><small>En linea</small></div>
+          <span class="time">10:24</span>
+        </a>
+        <div class="chat-item">
+          <div class="av">LG</div>
+          <div><b>Luis Garcia</b><small>Hace 1 hora</small></div>
+        </div>
+        <div class="chat-item">
+          <div class="av">SR</div>
+          <div><b>Sofia Ramirez</b><small>Ayer</small></div>
+        </div>
+        <div class="chat-item">
+          <div class="av">CM</div>
+          <div><b>Carlos Mendez</b><small>Ayer</small></div>
+        </div>
+        <a class="group-link" href="chat-grupal.html">Ver chats grupales</a>
+      </aside>
+
+      <main class="main">
+        <div class="chat-head">
+          <div class="av">AT</div>
+          <div><b>Ana Torres</b><br /><small>En linea</small></div>
+          <label class="sender-label" for="current-user">
+            Enviar como
+            <select id="current-user">
+              <option value="Ana Torres">Ana Torres</option>
+              <option value="Luis Garcia">Luis Garcia</option>
+            </select>
+          </label>
+          <a class="call-button" href="videollamada.html" title="Iniciar videollamada">?</a>
+          <span class="more">...</span>
+        </div>
+
+        <div class="msgs" id="messages" aria-live="polite">
+          <div class="msg">
+            <div class="bubble">Cargando mensajes...</div>
+          </div>
+        </div>
+
+        <form class="inputbar" id="message-form">
+          <span class="icon">?</span>
+          <input id="message-input" placeholder="Escribe un mensaje..." maxlength="500" autocomplete="off" required />
+          <button class="send" type="submit" aria-label="Enviar mensaje">?</button>
+        </form>
+      </main>
+    </div>
+  </div>
+  <script type="module" src="chat-privado.js"></script>
+</body>
+</html>

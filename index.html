@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nexo - Inicio de sesion</title>
+<link rel="stylesheet" href="login.css" />
+</head>
+<body>
+  <div class="window">
+    <div class="titlebar">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+    </div>
+    <div class="card">
+      <div class="left">
+        <div class="left-text">
+          <span>Conecta</span>
+          <span>Comparte</span>
+          <span>Crea</span>
+          <span>Aprende</span>
+          <div class="left-line"></div>
+        </div>
+      </div>
+      <div class="right">
+        <div class="logo">
+          <h1>Nexo</h1>
+          <p>TU COMUNIDAD, SIEMPRE CERCA</p>
+        </div>
+        <form id="loginForm">
+          <label for="email">Correo electronico</label>
+          <input type="email" id="email" placeholder="tucorreo@ejemplo.com" required />
+          <label for="password">Contrasena</label>
+          <div class="pass-wrap">
+            <input type="password" id="password" placeholder="••••••••••" required />
+            <button type="button" id="togglePass" title="Mostrar">?</button>
+          </div>
+          <div class="row">
+            <label class="remember" style="margin:0;font-weight:400;">
+              <input type="checkbox" /> Recordarme
+            </label>
+            <a href="#">Olvidaste tu contrasena?</a>
+          </div>
+          <button class="btn" type="submit">Iniciar sesion</button>
+        </form>
+        <div class="footer">
+          No tienes cuenta? <a href="registro.html">Crear cuenta</a>
+        </div>
+      </div>
+    </div>
+  </div>
+<script>
+  const pass = document.getElementById('password');
+  const toggle = document.getElementById('togglePass');
+  toggle.addEventListener('click', () => {
+    pass.type = pass.type === 'password' ? 'text' : 'password';
+  });
+  document.getElementById('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    window.location.href = 'home.html';
+  });
+</script>
+</body>
+</html>

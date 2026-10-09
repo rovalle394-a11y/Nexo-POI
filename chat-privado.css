@@ -1,0 +1,71 @@
+.chat-item {
+  color: inherit;
+  text-decoration: none;
+}
+
+.group-link {
+  display: block;
+  margin-top: 18px;
+  color: #6b655b;
+  font-size: 12px;
+  text-align: center;
+}
+
+.call-button {
+  width: 34px;
+  height: 34px;
+  margin-left: auto;
+  border: 1px solid #e8e0d3;
+  border-radius: 50%;
+  color: #5a554c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.sender-label {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #8a8378;
+  font-size: 11px;
+}
+
+.sender-label select {
+  border: 1px solid #e8e0d3;
+  border-radius: 16px;
+  padding: 6px 10px;
+  color: #5a554c;
+  background: #faf7f1;
+  outline: none;
+}
+
+.sender-label + .call-button {
+  margin-left: 0;
+}
+
+.more {
+  color: #8a8378;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.msg.me {
+  margin-left: auto;
+}
+
+@media(max-width:600px) {
+  .sender-label {
+    margin-left: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .call-button,
+  .more {
+    display: none;
+  }
+}

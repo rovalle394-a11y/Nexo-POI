@@ -1,0 +1,182 @@
+/* Nexo - Home */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+  background: #DCD5C9;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.window {
+  width: 1100px;
+  max-width: 100%;
+  height: 640px;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  background: #FDFBF7;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,.12);
+}
+
+.titlebar {
+  display: flex;
+  gap: 7px;
+  padding: 10px 16px;
+  background: #F5F1EA;
+  border-bottom: 1px solid #E8E0D3;
+  flex-shrink: 0;
+}
+
+.dot { width: 11px; height: 11px; border-radius: 50%; }
+.dot.r { background: #E0A39A; }
+.dot.y { background: #E6C79A; }
+.dot.g { background: #B5C4AD; }
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 12px 22px;
+  border-bottom: 1px solid #E8E0D3;
+  flex-shrink: 0;
+}
+
+.logo { font-family: Georgia, serif; font-size: 22px; min-width: 80px; }
+
+.search {
+  flex: 1;
+  max-width: 420px;
+  margin: 0 auto;
+  background: #F1ECE3;
+  border: 1px solid #E8E0D3;
+  border-radius: 20px;
+  padding: 7px 16px;
+  font-size: 12.5px;
+  outline: none;
+}
+
+.top-right { display: flex; align-items: center; gap: 14px; }
+
+.icon {
+  width: 28px; height: 28px;
+  border: 1px solid #CFC5B4;
+  border-radius: 8px;
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #8A8378;
+  flex-shrink: 0;
+}
+
+.icon.round { border-radius: 50%; }
+
+.avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: #D6CFC2;
+  border: 1px solid #CFC5B4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #5A554C;
+}
+
+.layout { display: flex; flex: 1; min-height: 0; }
+
+.sidebar {
+  width: 210px;
+  flex-shrink: 0;
+  border-right: 1px solid #EDE6D9;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #FDFBF7;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  font-size: 13.5px;
+  color: #5A554C;
+  text-decoration: none;
+}
+
+.item.active { background: #EDE6D8; color: #222; font-weight: 600; }
+.spacer { flex: 1; }
+
+.feed { flex: 1; padding: 20px 24px; background: #FAF7F1; overflow-y: auto; min-width: 0; }
+
+.composer {
+  background: #fff;
+  border: 1px solid #E8E0D3;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.composer input { flex: 1; border: none; outline: none; font-size: 13px; background: transparent; min-width: 0; }
+
+.post { background: #fff; border: 1px solid #E8E0D3; border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+
+.post-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+
+.mini-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: #D6CFC2;
+  border: 1px solid #CFC5B4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #5A554C;
+  flex-shrink: 0;
+}
+
+.post-head b { font-size: 13.5px; display: block; }
+.post-head small { font-size: 11.5px; color: #8A8378; }
+.menu { margin-left: auto; color: #8A8378; font-weight: 700; letter-spacing: 2px; }
+
+.post p { font-size: 13.5px; margin-bottom: 12px; color: #333; }
+
+.post-img {
+  background: #E8E0D3;
+  border: 1px solid #D6CFC2;
+  border-radius: 10px;
+  height: 190px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 42px;
+  font-weight: 700;
+  color: #8A8378;
+  margin-bottom: 12px;
+}
+
+.actions { display: flex; gap: 24px; font-size: 12.5px; color: #6B655B; }
+.actions span { display: flex; align-items: center; gap: 7px; }
+
+@media(max-width:800px) {
+  .window { height: auto; max-height: none; }
+  .layout { flex-direction: column; }
+  .sidebar { width: 100%; }
+  .feed { overflow: visible; }
+}

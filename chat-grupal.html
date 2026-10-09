@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexo - Chat grupal</title>
+  <link rel="stylesheet" href="chat-grupal.css" />
+</head>
+<body>
+  <div class="window">
+    <div class="titlebar">
+      <div class="dot r"></div>
+      <div class="dot y"></div>
+      <div class="dot g"></div>
+    </div>
+
+    <div class="topbar">
+      <div class="logo">Nexo</div>
+      <div class="av">AT</div>
+    </div>
+
+    <div class="layout">
+      <nav class="sidebar">
+        <a class="item" href="home.html">
+          <span class="icon">?</span> Inicio
+        </a>
+        <a class="item active" href="chat-grupal.html">
+          <span class="icon">?</span> Chats
+        </a>
+        <a class="item" href="videollamada.html">
+          <span class="icon">?</span> Videollamada
+        </a>
+        <a class="item" href="tareas.html">
+          <span class="icon">?</span> Tareas
+        </a>
+        <a class="item" href="perfil.html">
+          <span class="icon">?</span> Perfil
+        </a>
+        <div class="spacer"></div>
+        <a class="item" href="index.html">
+          <span class="icon">?</span> Cerrar sesion
+        </a>
+      </nav>
+
+      <aside class="chats">
+        <h3>Chats</h3>
+        <input class="search" placeholder="Buscar chats..." />
+        <div class="group-label">Grupos</div>
+
+        <div class="chat-item active">
+          <div class="av">DW</div>
+          <div>
+            <b>Desarrollo Web</b>
+            <small>12 miembros</small>
+          </div>
+          <span class="time">10:24</span>
+        </div>
+
+        <div class="chat-item">
+          <div class="av">DI</div>
+          <div>
+            <b>Diseno</b>
+            <small>8 miembros</small>
+          </div>
+          <span class="time">09:12</span>
+        </div>
+
+        <div class="chat-item">
+          <div class="av">PF</div>
+          <div>
+            <b>Proyecto Final</b>
+            <small>6 miembros</small>
+          </div>
+          <span class="time">Ayer</span>
+        </div>
+
+        <div class="chat-item">
+          <div class="av">IN</div>
+          <div>
+            <b>Ingles</b>
+            <small>10 miembros</small>
+          </div>
+          <span class="time">Ayer</span>
+        </div>
+
+        <div class="chat-item">
+          <div class="av">ID</div>
+          <div>
+            <b>Ideas</b>
+            <small>5 miembros</small>
+          </div>
+          <span class="time">Lun</span>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="chat-head">
+          <div class="av">DW</div>
+          <div>
+            <b>Desarrollo Web</b><br />
+            <small>12 miembros</small>
+          </div>
+          <span style="margin-left:auto;font-weight:700;letter-spacing:2px;color:#8A8378">...</span>
+        </div>
+
+        <div class="msgs">
+          <div class="msg">
+            <div class="av">MA</div>
+            <div class="bubble">
+              <b style="font-size:11px">Mariana</b><br />
+              Ya revisaron el documento?
+              <small>10:20</small>
+            </div>
+          </div>
+
+          <div class="msg">
+            <div class="av">DI</div>
+            <div class="bubble">
+              <b style="font-size:11px">Diego</b><br />
+              Si, ya lo subi al drive.
+              <small>10:22</small>
+            </div>
+          </div>
+
+          <div class="msg me">
+            <div class="bubble">
+              Tu<br />
+              Perfecto, gracias!
+              <small>10:24</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="inputbar">
+          <span class="icon">?</span>
+          <input placeholder="Escribe un mensaje..." />
+          <button class="send">?</button>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

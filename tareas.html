@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexo - Tareas</title>
+  <link rel="stylesheet" href="home.css" />
+  <link rel="stylesheet" href="tareas.css" />
+</head>
+<body>
+  <div class="window">
+    <div class="titlebar">
+      <div class="dot r"></div>
+      <div class="dot y"></div>
+      <div class="dot g"></div>
+    </div>
+
+    <div class="topbar">
+      <div class="logo">Nexo</div>
+      <div class="top-right"><div class="avatar">AT</div></div>
+    </div>
+
+    <div class="layout">
+      <nav class="sidebar">
+        <a class="item" href="home.html"><span class="icon">?</span> Inicio</a>
+        <a class="item" href="chat-grupal.html"><span class="icon">?</span> Chats</a>
+        <a class="item" href="videollamada.html"><span class="icon">?</span> Videollamada</a>
+        <a class="item active" href="tareas.html"><span class="icon">?</span> Tareas</a>
+        <a class="item" href="perfil.html"><span class="icon">?</span> Perfil</a>
+        <div class="spacer"></div>
+        <a class="item" href="index.html"><span class="icon">?</span> Cerrar sesion</a>
+      </nav>
+
+      <main class="tasks-area">
+        <div class="tasks-head">
+          <h1>Tareas</h1>
+          <button>＋ Nueva tarea</button>
+        </div>
+        <div class="daily-limit">
+          <div>
+            <b>Limite diario</b>
+            <span>3 de 5 tareas completadas hoy</span>
+          </div>
+          <div class="daily-progress"><span></span></div>
+          <small>Solo cinco tareas completadas por dia cuentan para obtener medallas.</small>
+        </div>
+        <div class="tabs">
+          <button class="active">Todas</button>
+          <button>Pendientes</button>
+          <button>En proceso</button>
+          <button>Completadas</button>
+        </div>
+
+        <div class="task-row">
+          <input type="checkbox" />
+          <b>Investigacion</b><span>Proyecto Final</span><time>12 sep 2026</time><em class="pending">Pendiente</em><strong>...</strong>
+        </div>
+        <div class="task-row">
+          <input type="checkbox" />
+          <b>Diseno de interfaz</b><span>Desarrollo Web</span><time>15 sep 2026</time><em class="progress">En proceso</em><strong>...</strong>
+        </div>
+        <div class="task-row">
+          <input type="checkbox" />
+          <b>Presentacion</b><span>Comunicacion</span><time>20 sep 2026</time><em class="pending">Pendiente</em><strong>...</strong>
+        </div>
+        <div class="task-row">
+          <input type="checkbox" checked />
+          <b>Reporte final</b><span>TIC</span><time>25 sep 2026</time><em class="done">Completada</em><strong>...</strong>
+        </div>
+        <div class="task-row">
+          <input type="checkbox" />
+          <b>Revision de prototipo</b><span>Desarrollo Web</span><time>28 sep 2026</time><em class="pending">Pendiente</em><strong>...</strong>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexo - Perfil</title>
+  <link rel="stylesheet" href="home.css" />
+  <link rel="stylesheet" href="perfil.css" />
+</head>
+<body>
+  <div class="window">
+    <div class="titlebar">
+      <div class="dot r"></div>
+      <div class="dot y"></div>
+      <div class="dot g"></div>
+    </div>
+
+    <div class="topbar">
+      <div class="logo">Nexo</div>
+      <div class="top-right"><div class="avatar">AT</div></div>
+    </div>
+
+    <div class="layout">
+      <nav class="sidebar">
+        <a class="item" href="home.html"><span class="icon">?</span> Inicio</a>
+        <a class="item" href="chat-grupal.html"><span class="icon">?</span> Chats</a>
+        <a class="item" href="videollamada.html"><span class="icon">?</span> Videollamada</a>
+        <a class="item" href="tareas.html"><span class="icon">?</span> Tareas</a>
+        <a class="item active" href="perfil.html"><span class="icon">?</span> Perfil</a>
+        <div class="spacer"></div>
+        <a class="item" href="index.html"><span class="icon">?</span> Cerrar sesion</a>
+      </nav>
+
+      <main class="profile-area">
+        <section class="profile-card">
+          <div class="large-avatar">AT</div>
+          <div>
+            <h1>Ana Torres</h1>
+            <p>@anatorres</p>
+            <span class="online">En linea</span>
+          </div>
+          <button>Editar perfil</button>
+        </section>
+
+        <section class="medals-section">
+          <div class="section-head">
+            <div><h2>Medallas por tareas</h2><p>Las medallas se obtienen por la cantidad de tareas completadas.</p></div>
+            <span>2 medallas ganadas</span>
+          </div>
+          <div class="task-summary">
+            <div><b>18</b><span>Tareas completadas</span></div>
+            <div><b>3 de 5</b><span>Tareas validas hoy</span></div>
+          </div>
+          <div class="next-medal">
+            <div><b>Proxima medalla: Oro</b><span>18 de 30 tareas</span></div>
+            <div class="medal-progress"><span></span></div>
+          </div>
+          <div class="medals-grid">
+            <article class="medal-card bronze">
+              <div class="medal">?</div>
+              <h3>Medalla de bronce</h3>
+              <p>Por completar 5 tareas.</p>
+              <span class="earned">Ganada</span>
+            </article>
+            <article class="medal-card silver">
+              <div class="medal">?</div>
+              <h3>Medalla de plata</h3>
+              <p>Por completar 15 tareas.</p>
+              <span class="earned">Ganada</span>
+            </article>
+            <article class="medal-card gold locked">
+              <div class="medal">?</div>
+              <h3>Medalla de oro</h3>
+              <p>Por completar 30 tareas.</p>
+              <span class="pending-medal">12 tareas restantes</span>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,114 @@
+.topbar {
+  justify-content: space-between;
+}
+
+.video-area {
+  flex: 1;
+  padding: 16px;
+  background: #faf7f1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.main-video {
+  position: relative;
+  flex: 1;
+  min-height: 390px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(145deg, #252525, #3c3c3c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.expand {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  color: #fff;
+  font-size: 18px;
+}
+
+.person-placeholder {
+  width: 150px;
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.person-placeholder .head {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #aaa;
+}
+
+.person-placeholder .body-shape {
+  width: 100px;
+  height: 55px;
+  margin-top: 10px;
+  border-radius: 50px 50px 8px 8px;
+  background: #aaa;
+}
+
+.person-name,
+.self-video > span {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  color: #fff;
+  font-size: 12px;
+}
+
+.self-video {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  width: 180px;
+  height: 130px;
+  border: 1px solid #777;
+  border-radius: 10px;
+  background: #4b4b4b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.person-placeholder.small {
+  transform: scale(.48);
+}
+
+.call-controls {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  padding-top: 14px;
+}
+
+.call-controls button,
+.call-controls a {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: #4a4a4a;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.call-controls a {
+  background: #e6534e;
+}
+
+@media (max-width: 800px) {
+  .main-video { min-height: 420px; }
+  .self-video { width: 130px; height: 100px; }
+}
