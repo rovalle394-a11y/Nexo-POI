@@ -32,22 +32,33 @@
       </nav>
 
       <main class="video-area">
+        <div class="call-setup">
+          <label for="call-user">Participante</label>
+          <select id="call-user">
+            <option value="Ana Torres">Ana Torres</option>
+            <option value="Luis Garcia">Luis Garcia</option>
+          </select>
+          <button id="start-call" type="button">Iniciar llamada</button>
+          <button id="join-call" type="button">Unirse</button>
+          <span id="call-status">Selecciona una opcion para comenzar.</span>
+        </div>
         <div class="main-video">
-          <span class="expand">?</span>
-          <div class="person-placeholder"><div class="head"></div><div class="body-shape"></div></div>
-          <span class="person-name">Ana Torres</span>
+          <video id="remote-video" autoplay playsinline></video>
+          <div class="video-empty" id="remote-empty">Esperando al otro participante...</div>
+          <span class="person-name" id="remote-name">Participante remoto</span>
           <div class="self-video">
-            <div class="person-placeholder small"><div class="head"></div><div class="body-shape"></div></div>
-            <span>Tu</span>
+            <video id="local-video" autoplay playsinline muted></video>
+            <span id="local-name">Tu</span>
           </div>
         </div>
         <div class="call-controls">
-          <button title="Silenciar microfono">?</button>
-          <button title="Desactivar camara">?</button>
-          <a href="chat-privado.html" title="Finalizar llamada">?</a>
+          <button id="toggle-microphone" type="button" title="Silenciar microfono" disabled>Mic</button>
+          <button id="toggle-camera" type="button" title="Desactivar camara" disabled>Cam</button>
+          <button id="end-call" class="end-call" type="button" title="Finalizar llamada" disabled>Fin</button>
         </div>
       </main>
     </div>
   </div>
+  <script type="module" src="videollamada.js"></script>
 </body>
 </html>

@@ -11,6 +11,41 @@
   min-width: 0;
 }
 
+.call-setup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 12px;
+  color: #5a554c;
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+
+.call-setup select,
+.call-setup button {
+  border: 1px solid #cfc5b4;
+  border-radius: 18px;
+  padding: 7px 12px;
+  background: #fff;
+  color: #5a554c;
+}
+
+.call-setup button {
+  cursor: pointer;
+  background: #ede6d8;
+  font-weight: 600;
+}
+
+.call-setup button:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+#call-status {
+  margin-left: auto;
+  color: #6b655b;
+}
+
 .main-video {
   position: relative;
   flex: 1;
@@ -21,6 +56,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+#remote-video {
+  width: 100%;
+  height: 100%;
+  min-height: 390px;
+  object-fit: cover;
+  background: #2f2f2f;
+}
+
+.video-empty {
+  position: absolute;
+  color: #ddd;
+  font-size: 13px;
+  text-align: center;
 }
 
 .expand {
@@ -78,6 +128,13 @@
   justify-content: center;
 }
 
+#local-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
 .person-placeholder.small {
   transform: scale(.48);
 }
@@ -104,11 +161,22 @@
   cursor: pointer;
 }
 
-.call-controls a {
+.call-controls .end-call {
   background: #e6534e;
+}
+
+.call-controls button:disabled {
+  cursor: not-allowed;
+  opacity: .45;
+}
+
+.call-controls button.off {
+  background: #a7a19a;
 }
 
 @media (max-width: 800px) {
   .main-video { min-height: 420px; }
+  #remote-video { min-height: 420px; }
   .self-video { width: 130px; height: 100px; }
+  #call-status { width: 100%; margin-left: 0; }
 }
