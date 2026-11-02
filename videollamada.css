@@ -9,6 +9,8 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .call-setup {
@@ -38,7 +40,7 @@
 
 .call-setup button:disabled {
   cursor: not-allowed;
-  opacity: .55;
+  opacity: 0.55;
 }
 
 #call-status {
@@ -49,7 +51,7 @@
 .main-video {
   position: relative;
   flex: 1;
-  min-height: 390px;
+  min-height: 300px;
   border-radius: 12px;
   overflow: hidden;
   background: linear-gradient(145deg, #252525, #3c3c3c);
@@ -61,7 +63,7 @@
 #remote-video {
   width: 100%;
   height: 100%;
-  min-height: 390px;
+  min-height: 300px;
   object-fit: cover;
   background: #2f2f2f;
 }
@@ -71,38 +73,6 @@
   color: #ddd;
   font-size: 13px;
   text-align: center;
-}
-
-.expand {
-  position: absolute;
-  top: 14px;
-  right: 16px;
-  color: #fff;
-  font-size: 18px;
-}
-
-.person-placeholder {
-  width: 150px;
-  height: 150px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.person-placeholder .head {
-  width: 58px;
-  height: 58px;
-  border-radius: 50%;
-  background: #aaa;
-}
-
-.person-placeholder .body-shape {
-  width: 100px;
-  height: 55px;
-  margin-top: 10px;
-  border-radius: 50px 50px 8px 8px;
-  background: #aaa;
 }
 
 .person-name,
@@ -135,19 +105,15 @@
   border-radius: 10px;
 }
 
-.person-placeholder.small {
-  transform: scale(.48);
-}
-
 .call-controls {
   display: flex;
   justify-content: center;
   gap: 14px;
   padding-top: 14px;
+  flex-shrink: 0;
 }
 
-.call-controls button,
-.call-controls a {
+.call-controls button {
   width: 44px;
   height: 44px;
   border: 0;
@@ -157,7 +123,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  text-decoration: none;
   cursor: pointer;
 }
 
@@ -167,7 +132,7 @@
 
 .call-controls button:disabled {
   cursor: not-allowed;
-  opacity: .45;
+  opacity: 0.45;
 }
 
 .call-controls button.off {
@@ -175,8 +140,37 @@
 }
 
 @media (max-width: 800px) {
-  .main-video { min-height: 420px; }
-  #remote-video { min-height: 420px; }
-  .self-video { width: 130px; height: 100px; }
-  #call-status { width: 100%; margin-left: 0; }
+  .main-video,
+  #remote-video {
+    min-height: 320px;
+  }
+
+  .self-video {
+    width: 130px;
+    height: 100px;
+  }
+
+  #call-status {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+@media (max-height: 700px) {
+  .video-area {
+    padding: 10px 16px;
+  }
+
+  .call-setup {
+    padding-bottom: 8px;
+  }
+
+  .main-video,
+  #remote-video {
+    min-height: 260px;
+  }
+
+  .call-controls {
+    padding-top: 8px;
+  }
 }
