@@ -122,6 +122,24 @@ body {
 .chat-head b { font-size: 14px; }
 .chat-head small { font-size: 11.5px; color: #5A8A5A; }
 
+.sender-label {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #8A8378;
+  font-size: 11px;
+}
+
+.sender-label select {
+  border: 1px solid #E8E0D3;
+  border-radius: 16px;
+  padding: 6px 10px;
+  color: #5A554C;
+  background: #FAF7F1;
+  outline: none;
+}
+
 .msgs { flex: 1; padding: 18px; display: flex; flex-direction: column; gap: 14px; background: #FDFBF7; overflow-y: auto; }
 .msg { display: flex; gap: 10px; max-width: 78%; }
 
@@ -129,6 +147,13 @@ body {
 .bubble small { display: block; font-size: 10px; color: #8A8378; margin-top: 4px; text-align: right; }
 .msg.me { align-self: flex-end; }
 .msg.me .bubble { background: #EFE7D8; }
+
+.chat-status {
+  margin: auto;
+  color: #8A8378;
+  font-size: 12px;
+  text-align: center;
+}
 
 .inputbar { display: flex; gap: 10px; padding: 12px 18px; border-top: 1px solid #EDE6D9; align-items: center; flex-shrink: 0; }
 .inputbar input { flex: 1; border: 1px solid #E8E0D3; border-radius: 20px; padding: 10px 16px; font-size: 13px; outline: none; background: #FAF7F1; min-width: 0; }
@@ -150,4 +175,16 @@ body {
   .layout { flex-direction: column; }
   .sidebar, .chats { width: 100%; }
   .msgs { min-height: 300px; }
+}
+
+@media(max-width:600px) {
+  .sender-label {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .chat-head > span:last-child {
+    display: none;
+  }
 }
