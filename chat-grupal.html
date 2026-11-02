@@ -51,7 +51,7 @@
           <div class="av">DW</div>
           <div>
             <b>Desarrollo Web</b>
-            <small>12 miembros</small>
+            <small>3 integrantes</small>
           </div>
           <span class="time">10:24</span>
         </div>
@@ -98,46 +98,31 @@
           <div class="av">DW</div>
           <div>
             <b>Desarrollo Web</b><br />
-            <small>12 miembros</small>
+            <small>Ana, Mariana y Diego</small>
           </div>
+          <label class="sender-label" for="group-current-user">
+            Enviar como
+            <select id="group-current-user">
+              <option value="Ana Torres">Ana Torres</option>
+              <option value="Mariana Lopez">Mariana Lopez</option>
+              <option value="Diego Martinez">Diego Martinez</option>
+            </select>
+          </label>
           <span style="margin-left:auto;font-weight:700;letter-spacing:2px;color:#8A8378">...</span>
         </div>
 
-        <div class="msgs">
-          <div class="msg">
-            <div class="av">MA</div>
-            <div class="bubble">
-              <b style="font-size:11px">Mariana</b><br />
-              Ya revisaron el documento?
-              <small>10:20</small>
-            </div>
-          </div>
-
-          <div class="msg">
-            <div class="av">DI</div>
-            <div class="bubble">
-              <b style="font-size:11px">Diego</b><br />
-              Si, ya lo subi al drive.
-              <small>10:22</small>
-            </div>
-          </div>
-
-          <div class="msg me">
-            <div class="bubble">
-              Tu<br />
-              Perfecto, gracias!
-              <small>10:24</small>
-            </div>
-          </div>
+        <div class="msgs" id="group-messages" aria-live="polite">
+          <p class="chat-status" id="group-status">Cargando mensajes...</p>
         </div>
 
-        <div class="inputbar">
+        <form class="inputbar" id="group-message-form">
           <span class="icon">?</span>
-          <input placeholder="Escribe un mensaje..." />
-          <button class="send">?</button>
-        </div>
+          <input id="group-message-input" placeholder="Escribe un mensaje..." maxlength="500" autocomplete="off" required />
+          <button class="send" type="submit" aria-label="Enviar mensaje">?</button>
+        </form>
       </main>
     </div>
   </div>
+  <script type="module" src="chat-grupal.js"></script>
 </body>
 </html>
