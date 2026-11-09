@@ -129,7 +129,7 @@ fileInput.addEventListener("change", async () => {
   attachButton.textContent = "Subiendo...";
 
   try {
-    const fileData = await uploadChatFile(file, "grupal-desarrollo-web");
+    const fileData = await uploadChatFile(file);
     await push(messagesRef, {
       grupo: "Desarrollo Web",
       usuario: currentUser.value,

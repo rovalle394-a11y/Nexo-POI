@@ -1,11 +1,7 @@
-import { storage } from "./firebase-config.js";
-import {
-  getDownloadURL,
-  ref as storageRef,
-  uploadBytes
-} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-storage.js";
-
 const maxFileSize = 5 * 1024 * 1024;
+const cloudName = "lavb4mgz";
+const uploadPreset = "nexo_archivos";
+const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
 
 function isTextFile(file) {
   return file.type === "text/plain" || file.name.toLowerCase().endsWith(".txt");
@@ -25,21 +21,33 @@ export function validateChatFile(file) {
   }
 }
 
-export async function uploadChatFile(file, chatFolder) {
+export async function uploadChatFile(file) {
   validateChatFile(file);
-  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-  const path = `adjuntos/${chatFolder}/${Date.now()}-${safeName}`;
   const contentType = file.type || "text/plain";
-  const fileReference = storageRef(storage, path);
+  const formData = new FormData();
 
-  await uploadBytes(fileReference, file, { contentType });
-  const downloadUrl = await getDownloadURL(fileReference);
+  formData.append("file", file);
+  formData.append("upload_preset", uploadPreset);
+
+  const response = await fetch(uploadUrl, {
+    method: "POST",
+    body: formData
+  });
+
+  const result = await response.json();
+
+  if (!response.ok || !result.secure_url) {
+    const detail = result?.error?.message;
+    throw new Error(detail || "Cloudinary no pudo guardar el archivo.");
+  }
 
   return {
-    archivoUrl: downloadUrl,
+    archivoUrl: result.secure_url,
     archivoNombre: file.name,
     archivoTipo: contentType,
-    archivoTamano: file.size
+    archivoTamano: file.size,
+    archivoPublicId: result.public_id,
+    archivoProveedor: "cloudinary"
   };
 }
 

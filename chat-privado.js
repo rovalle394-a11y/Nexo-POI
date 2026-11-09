@@ -124,7 +124,7 @@ fileInput.addEventListener("change", async () => {
   attachButton.textContent = "Subiendo...";
 
   try {
-    const fileData = await uploadChatFile(file, "privado");
+    const fileData = await uploadChatFile(file);
     await push(messagesRef, {
       usuario: currentUserSelect.value,
       texto: `Adjunto: ${file.name}`,
