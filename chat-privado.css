@@ -42,7 +42,7 @@
   outline: none;
 }
 
-.sender-label + .call-button {
+.encryption-control + .call-button {
   margin-left: 0;
 }
 
