@@ -1,4 +1,5 @@
 import { database } from "./firebase-config.js";
+import { appendChatFile, uploadChatFile } from "./chat-files.js";
 import {
   limitToLast,
   onChildAdded,
@@ -13,6 +14,8 @@ const status = document.querySelector("#group-status");
 const form = document.querySelector("#group-message-form");
 const input = document.querySelector("#group-message-input");
 const currentUser = document.querySelector("#group-current-user");
+const attachButton = document.querySelector("#group-attach-button");
+const fileInput = document.querySelector("#group-file-input");
 const messagesRef = ref(database, "chats/chat-grupal/desarrollo-web/mensajes");
 const recentMessages = query(messagesRef, limitToLast(100));
 
@@ -67,7 +70,9 @@ function showMessage(message) {
   text.textContent = message.texto;
   time.textContent = formatTime(message.fecha);
 
-  bubble.append(sender, lineBreak, text, time);
+  bubble.append(sender, lineBreak, text);
+  appendChatFile(bubble, message);
+  bubble.append(time);
   container.append(avatar, bubble);
   messages.append(container);
   updateMessageSides();
@@ -111,5 +116,32 @@ form.addEventListener("submit", async (event) => {
   } finally {
     input.disabled = false;
     input.focus();
+  }
+});
+
+attachButton.addEventListener("click", () => fileInput.click());
+
+fileInput.addEventListener("change", async () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  attachButton.disabled = true;
+  attachButton.textContent = "Subiendo...";
+
+  try {
+    const fileData = await uploadChatFile(file, "grupal-desarrollo-web");
+    await push(messagesRef, {
+      grupo: "Desarrollo Web",
+      usuario: currentUser.value,
+      texto: `Adjunto: ${file.name}`,
+      fecha: Date.now(),
+      ...fileData
+    });
+  } catch (error) {
+    window.alert(error.message || "No se pudo subir el archivo.");
+  } finally {
+    fileInput.value = "";
+    attachButton.disabled = false;
+    attachButton.textContent = "Adjuntar";
   }
 });

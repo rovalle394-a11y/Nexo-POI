@@ -158,6 +158,45 @@ body {
 .inputbar { display: flex; gap: 10px; padding: 12px 18px; border-top: 1px solid #EDE6D9; align-items: center; flex-shrink: 0; }
 .inputbar input { flex: 1; border: 1px solid #E8E0D3; border-radius: 20px; padding: 10px 16px; font-size: 13px; outline: none; background: #FAF7F1; min-width: 0; }
 
+.attach-button {
+  border: 1px solid #CFC5B4;
+  border-radius: 16px;
+  padding: 7px 11px;
+  background: #fff;
+  color: #5A554C;
+  cursor: pointer;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.attach-button:disabled {
+  cursor: wait;
+  opacity: .55;
+}
+
+.message-image {
+  display: block;
+  width: min(260px, 100%);
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 9px;
+  margin-top: 8px;
+  border: 1px solid #E8E0D3;
+}
+
+.message-file {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 7px 10px;
+  border: 1px solid #D8CEBD;
+  border-radius: 8px;
+  color: #5A554C;
+  background: #FAF7F1;
+  text-decoration: none;
+  font-size: 11px;
+  word-break: break-word;
+}
+
 .send {
   width: 36px; height: 36px;
   border-radius: 50%;

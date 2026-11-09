@@ -1,4 +1,5 @@
 import { database } from "./firebase-config.js";
+import { appendChatFile, uploadChatFile } from "./chat-files.js";
 import {
   limitToLast,
   onChildAdded,
@@ -12,6 +13,8 @@ const messages = document.querySelector("#messages");
 const form = document.querySelector("#message-form");
 const input = document.querySelector("#message-input");
 const currentUserSelect = document.querySelector("#current-user");
+const attachButton = document.querySelector("#private-attach-button");
+const fileInput = document.querySelector("#private-file-input");
 const messagesRef = ref(database, "chats/chat-privado/mensajes");
 const recentMessages = query(messagesRef, limitToLast(100));
 
@@ -66,7 +69,9 @@ function showMessage(message) {
   text.textContent = message.texto;
   time.textContent = formatTime(message.fecha);
 
-  bubble.append(sender, text, time);
+  bubble.append(sender, text);
+  appendChatFile(bubble, message);
+  bubble.append(time);
   container.append(bubble);
   messages.append(container);
   messages.scrollTop = messages.scrollHeight;
@@ -106,5 +111,31 @@ form.addEventListener("submit", async (event) => {
   } finally {
     input.disabled = false;
     input.focus();
+  }
+});
+
+attachButton.addEventListener("click", () => fileInput.click());
+
+fileInput.addEventListener("change", async () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  attachButton.disabled = true;
+  attachButton.textContent = "Subiendo...";
+
+  try {
+    const fileData = await uploadChatFile(file, "privado");
+    await push(messagesRef, {
+      usuario: currentUserSelect.value,
+      texto: `Adjunto: ${file.name}`,
+      fecha: Date.now(),
+      ...fileData
+    });
+  } catch (error) {
+    window.alert(error.message || "No se pudo subir el archivo.");
+  } finally {
+    fileInput.value = "";
+    attachButton.disabled = false;
+    attachButton.textContent = "Adjuntar";
   }
 });

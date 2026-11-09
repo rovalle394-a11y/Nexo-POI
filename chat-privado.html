@@ -77,7 +77,8 @@
         </div>
 
         <form class="inputbar" id="message-form">
-          <span class="icon">?</span>
+          <button class="attach-button" id="private-attach-button" type="button">Adjuntar</button>
+          <input class="file-input" id="private-file-input" type="file" accept="image/*,.txt,text/plain" hidden />
           <input id="message-input" placeholder="Escribe un mensaje..." maxlength="500" autocomplete="off" required />
           <button class="send" type="submit" aria-label="Enviar mensaje">?</button>
         </form>
