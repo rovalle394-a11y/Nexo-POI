@@ -19,21 +19,18 @@
           <h1>Nexo</h1>
           <p>CREA TU CUENTA</p>
         </div>
-        <form action="home.html">
+        <form id="registerForm">
           <label>Nombre completo</label>
-          <input placeholder="Tu nombre" required />
-
-          <label>Nombre de usuario</label>
-          <input placeholder="usuario" required />
+          <input id="full-name" placeholder="Tu nombre" maxlength="80" autocomplete="name" required />
 
           <label>Correo electronico</label>
-          <input type="email" placeholder="tucorreo@ejemplo.com" required />
+          <input id="email" type="email" placeholder="tucorreo@ejemplo.com" autocomplete="email" required />
 
           <label>Contrasena</label>
-          <input type="password" placeholder="Minimo 6 caracteres" required />
+          <input id="password" type="password" minlength="6" placeholder="Minimo 6 caracteres" autocomplete="new-password" required />
 
           <label>Confirmar contrasena</label>
-          <input type="password" placeholder="Repite tu contrasena" required />
+          <input id="confirm-password" type="password" minlength="6" placeholder="Repite tu contrasena" autocomplete="new-password" required />
 
           <button class="btn" type="submit">Registrarme</button>
         </form>
@@ -51,5 +48,6 @@
       </div>
     </div>
   </div>
+  <script type="module" src="auth-form.js"></script>
 </body>
 </html>
