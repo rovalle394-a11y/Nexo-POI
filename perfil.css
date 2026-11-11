@@ -52,14 +52,22 @@
   font-size: 10px;
 }
 
-.profile-card button {
+.profile-selector {
   margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: #8a8378;
+  font-size: 10px;
+}
+
+.profile-selector select {
   border: 1px solid #cfc5b4;
   border-radius: 7px;
   padding: 9px 14px;
   background: #fff;
   color: #5a554c;
-  cursor: pointer;
+  outline: none;
 }
 
 .medals-section {
@@ -83,7 +91,7 @@
 
 .task-summary {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   margin-bottom: 14px;
 }
@@ -125,7 +133,7 @@
 
 .medal-progress span {
   display: block;
-  width: 60%;
+  width: 0;
   height: 100%;
   background: #b8944b;
 }
@@ -179,7 +187,7 @@
 
 @media (max-width: 800px) {
   .profile-card { align-items: flex-start; flex-wrap: wrap; }
-  .profile-card button { margin-left: 0; }
+  .profile-selector { margin-left: 0; }
   .task-summary { grid-template-columns: 1fr; }
   .medals-grid { grid-template-columns: 1fr; }
 }

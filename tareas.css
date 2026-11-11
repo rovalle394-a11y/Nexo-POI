@@ -20,12 +20,78 @@
   font-weight: 400;
 }
 
-.tasks-head > button {
+.tasks-head p {
+  margin-top: 3px;
+  color: #8a8378;
+  font-size: 11px;
+}
+
+.task-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.task-actions label,
+.task-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #6b655b;
+  font-size: 10px;
+}
+
+.task-actions select,
+.task-form input {
+  border: 1px solid #e8e0d3;
+  border-radius: 7px;
+  padding: 8px 10px;
+  background: #fdfbf7;
+  color: #4f4a42;
+  outline: none;
+}
+
+.task-actions > button,
+.form-actions button:first-child {
   border: 0;
   border-radius: 7px;
   padding: 10px 16px;
   background: #34322f;
   color: #fff;
+  cursor: pointer;
+}
+
+.task-form {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 170px auto;
+  gap: 12px;
+  align-items: end;
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid #e8e0d3;
+  border-radius: 10px;
+  background: #fdfbf7;
+}
+
+.task-form[hidden] {
+  display: none;
+}
+
+.form-actions {
+  display: flex;
+  gap: 7px;
+}
+
+.form-actions button {
+  padding: 9px 12px;
+  white-space: nowrap;
+}
+
+.form-actions button:last-child {
+  border: 1px solid #cfc5b4;
+  border-radius: 7px;
+  background: #fff;
+  color: #5a554c;
   cursor: pointer;
 }
 
@@ -65,7 +131,7 @@
 
 .daily-progress span {
   display: block;
-  width: 60%;
+  width: 0;
   height: 100%;
   background: #8a806f;
 }
@@ -84,6 +150,7 @@
   background: transparent;
   color: #6b655b;
   font-size: 12px;
+  cursor: pointer;
 }
 
 .tabs button.active {
@@ -119,7 +186,21 @@
 .task-row em.progress { background: #e5e9e4; color: #546558; }
 .task-row em.done { background: #dbe8d5; color: #4c6645; }
 
+.task-row input:disabled {
+  cursor: default;
+}
+
+.tasks-status {
+  padding: 28px 0;
+  color: #8a8378;
+  font-size: 12px;
+  text-align: center;
+}
+
 @media (max-width: 800px) {
+  .tasks-head { align-items: flex-start; gap: 12px; }
+  .task-actions { align-items: stretch; flex-direction: column; }
+  .task-form { grid-template-columns: 1fr; }
   .tabs { gap: 14px; overflow-x: auto; }
   .task-row { grid-template-columns: 22px 1fr auto; padding: 10px 0; }
   .task-row span, .task-row time { display: none; }

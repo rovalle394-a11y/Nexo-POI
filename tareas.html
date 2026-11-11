@@ -33,46 +33,58 @@
 
       <main class="tasks-area">
         <div class="tasks-head">
-          <h1>Tareas</h1>
-          <button>＋ Nueva tarea</button>
+          <div>
+            <h1>Tareas</h1>
+            <p>Grupo Desarrollo Web</p>
+          </div>
+          <div class="task-actions">
+            <label for="task-current-user">
+              Usuario
+              <select id="task-current-user">
+                <option value="Ana Torres">Ana Torres</option>
+                <option value="Mariana Lopez">Mariana Lopez</option>
+                <option value="Diego Martinez">Diego Martinez</option>
+              </select>
+            </label>
+            <button id="new-task-button" type="button">＋ Nueva tarea</button>
+          </div>
         </div>
+
+        <form class="task-form" id="task-form" hidden>
+          <label for="task-title">
+            Nombre de la tarea
+            <input id="task-title" maxlength="80" required />
+          </label>
+          <label for="task-date">
+            Fecha limite
+            <input id="task-date" type="date" />
+          </label>
+          <div class="form-actions">
+            <button type="submit">Guardar tarea</button>
+            <button id="cancel-task-button" type="button">Cancelar</button>
+          </div>
+        </form>
+
         <div class="daily-limit">
           <div>
             <b>Limite diario</b>
-            <span>3 de 5 tareas completadas hoy</span>
+            <span id="daily-count">0 de 5 tareas validas hoy</span>
           </div>
-          <div class="daily-progress"><span></span></div>
+          <div class="daily-progress"><span id="daily-progress"></span></div>
           <small>Solo cinco tareas completadas por dia cuentan para obtener medallas.</small>
         </div>
         <div class="tabs">
-          <button class="active">Todas</button>
-          <button>Pendientes</button>
-          <button>En proceso</button>
-          <button>Completadas</button>
+          <button class="active" type="button" data-filter="all">Todas</button>
+          <button type="button" data-filter="pending">Pendientes</button>
+          <button type="button" data-filter="completed">Completadas</button>
         </div>
 
-        <div class="task-row">
-          <input type="checkbox" />
-          <b>Investigacion</b><span>Proyecto Final</span><time>12 sep 2026</time><em class="pending">Pendiente</em><strong>...</strong>
-        </div>
-        <div class="task-row">
-          <input type="checkbox" />
-          <b>Diseno de interfaz</b><span>Desarrollo Web</span><time>15 sep 2026</time><em class="progress">En proceso</em><strong>...</strong>
-        </div>
-        <div class="task-row">
-          <input type="checkbox" />
-          <b>Presentacion</b><span>Comunicacion</span><time>20 sep 2026</time><em class="pending">Pendiente</em><strong>...</strong>
-        </div>
-        <div class="task-row">
-          <input type="checkbox" checked />
-          <b>Reporte final</b><span>TIC</span><time>25 sep 2026</time><em class="done">Completada</em><strong>...</strong>
-        </div>
-        <div class="task-row">
-          <input type="checkbox" />
-          <b>Revision de prototipo</b><span>Desarrollo Web</span><time>28 sep 2026</time><em class="pending">Pendiente</em><strong>...</strong>
+        <div id="tasks-list">
+          <p class="tasks-status" id="tasks-status">Cargando tareas...</p>
         </div>
       </main>
     </div>
   </div>
+  <script type="module" src="tareas.js"></script>
 </body>
 </html>
