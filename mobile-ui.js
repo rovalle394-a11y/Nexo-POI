@@ -1,7 +1,3 @@
-const stylesheet = document.createElement("link");
-stylesheet.rel = "stylesheet";
-stylesheet.href = "mobile.css";
-document.head.append(stylesheet);
 function fitViewport() {
   document.documentElement.style.setProperty("--viewport-height", `${window.visualViewport?.height || window.innerHeight}px`);
 }
