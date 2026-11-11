@@ -93,7 +93,7 @@ async function openChat(user) {
   stop?.();
   target = null;
   selected = user.uid;
-  document.querySelector("#private-video-link").href = `videollamada.html?usuario=${encodeURIComponent(user.uid)}`;
+  document.querySelector("#private-video-link").href = `videollamada.html?usuario=${encodeURIComponent(user.uid)}&accion=llamar`;
   document.querySelector("#private-video-link").hidden = false;
   input.value = "";
   document.querySelector("#recipient-name").textContent = user.nombre;

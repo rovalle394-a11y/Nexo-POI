@@ -24,6 +24,8 @@ const user = sessionUser;
 const name = user.displayName || "Usuario";
 export const directoryReady = set(ref(database, `usuarios/${user.uid}`), { nombre: name });
 directoryReady.catch(() => console.warn("Revisa las reglas del directorio de usuarios."));
+import("./mobile-ui.js");
+directoryReady.then(() => import("./incoming-calls.js")).then((module) => module.startIncomingCalls(user)).catch(console.warn);
 document.querySelectorAll(".topbar .av, .topbar .avatar").forEach((avatar) => {
   avatar.textContent = initials(name);
   avatar.title = name;

@@ -33,14 +33,15 @@
 
       <main class="video-area">
         <div class="call-setup">
-          <label for="call-user">Participante</label>
-          <select id="call-user">
+          <label for="call-user" hidden>Participante</label>
+          <select id="call-user" hidden>
             <option value="Ana Torres">Ana Torres</option>
             <option value="Luis Garcia">Luis Garcia</option>
           </select>
-          <button id="start-call" type="button">Iniciar llamada</button>
-          <button id="join-call" type="button">Unirse</button>
-          <span id="call-status">Selecciona una opcion para comenzar.</span>
+          <button id="start-call" type="button" hidden>Videollamar</button>
+          <button id="join-call" type="button" hidden>Aceptar llamada</button>
+          <a href="chat-privado.html">Volver al chat</a>
+          <span id="call-status" role="status">Preparando videollamada...</span>
         </div>
         <div class="main-video">
           <video id="remote-video" autoplay playsinline></video>

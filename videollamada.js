@@ -63,6 +63,9 @@ let pendingCandidates = [];
 let unsubscribeRoom = null;
 let unsubscribeCandidates = null;
 let unsubscribeAnswer = null;
+let ringTimer = null;
+let callBusy = false;
+let activeSession = null;
 
 userSelect.replaceChildren(new Option(sessionUser.displayName || "Usuario", sessionUser.uid));
 userSelect.disabled = true;
@@ -89,6 +92,7 @@ function setCallButtons(inCall) {
   endButton.disabled = !inCall;
   microphoneButton.disabled = !inCall;
   cameraButton.disabled = !inCall;
+  endButton.textContent = inCall && isCaller ? "Cancelar" : "Colgar";
 }
 
 async function prepareMedia() {
@@ -120,6 +124,8 @@ async function prepareMedia() {
   peerConnection.addEventListener("connectionstatechange", () => {
     const connectionState = peerConnection?.connectionState;
     if (connectionState === "connected") {
+      clearTimeout(ringTimer);
+      endButton.textContent = "Colgar";
       setStatus("Videollamada conectada.");
       remoteEmpty.hidden = true;
     } else if (["failed", "disconnected"].includes(connectionState)) {
@@ -152,27 +158,33 @@ async function flushPendingCandidates() {
 function listenForEnd() {
   unsubscribeRoom = onValue(roomRef, (snapshot) => {
     const room = snapshot.val();
-    if (room?.status === "ended" && peerConnection) {
+    if (["ended", "rejected", "missed"].includes(room?.status) && peerConnection) {
       closeCall(false);
-      setStatus("La llamada fue finalizada.");
+      setStatus(room.status === "rejected" ? "La otra persona rechazó la llamada." : room.status === "missed" ? "La otra persona no respondió." : "La llamada fue finalizada.");
+      startButton.hidden = false;
     }
   });
 }
 
 async function startCall() {
+  if (callBusy || peerConnection) return;
+  callBusy = true;
   try {
     setStatus("Solicitando acceso a camara y microfono...");
-    setCallButtons(true);
     isCaller = true;
+    setCallButtons(true);
+    endButton.disabled = true;
     pendingCandidates = [];
     const existing = (await get(roomRef)).val();
-    if (existing && existing.status !== "ended") {
+    if (existing && (existing.status === "active" || (existing.status === "ringing" && Date.now() - existing.createdAt < 60000))) {
       setCallButtons(false);
-      setStatus("Ya hay una llamada. Usa Unirse si la inicio la otra persona.");
+      setStatus("Ya hay una llamada en curso. Vuelve al chat para atenderla.");
       return;
     }
     await remove(roomRef);
     await prepareMedia();
+    setCallButtons(true);
+    activeSession = crypto.randomUUID();
 
     peerConnection.addEventListener("icecandidate", async (event) => {
       if (event.candidate) {
@@ -188,6 +200,7 @@ async function startCall() {
     });
     await update(roomRef, {
       caller: sessionUser.uid,
+      sessionId: activeSession,
       status: "ringing",
       createdAt: Date.now()
     });
@@ -204,21 +217,33 @@ async function startCall() {
       await addRemoteCandidate(snapshot.val());
     });
     listenForEnd();
-    setStatus("Llamada creada. Esperando a que el otro participante se una.");
+    startButton.hidden = true;
+    setStatus(`Llamando a ${otherName}...`);
+    ringTimer = setTimeout(async () => {
+      const current = (await get(roomRef)).val();
+      if (current?.sessionId === activeSession && current.status === "ringing") {
+        await update(roomRef, { status: "missed" });
+      }
+    }, 60000);
   } catch (error) {
-    closeCall(false);
+    await closeCall(false);
+    startButton.hidden = false;
     setStatus(error.message || "No se pudo iniciar la videollamada.");
+  } finally {
+    callBusy = false;
   }
 }
 
 async function joinCall() {
+  if (callBusy || peerConnection) return;
+  callBusy = true;
   try {
     setStatus("Buscando una llamada disponible...");
     const snapshot = await get(roomRef);
     const room = snapshot.val();
 
-    if (!room?.offer || room.status === "ended") {
-      setStatus("No hay una llamada activa. Inicia la llamada desde el otro dispositivo.");
+    if (!room?.offer || room.status !== "ringing" || Date.now() - room.createdAt > 60000) {
+      setStatus("La llamada ya no está disponible. Vuelve al chat.");
       return;
     }
     if (room.caller === sessionUser.uid || room.status === "active") {
@@ -226,10 +251,19 @@ async function joinCall() {
       return;
     }
 
-    setCallButtons(true);
     isCaller = false;
+    setCallButtons(true);
+    endButton.disabled = true;
     pendingCandidates = [];
     await prepareMedia();
+    const latest = (await get(roomRef)).val();
+    if (latest?.status !== "ringing" || latest.sessionId !== room.sessionId) {
+      await closeCall(false);
+      setStatus("La llamada fue cancelada mientras abrías la cámara.");
+      return;
+    }
+    activeSession = room.sessionId;
+    setCallButtons(true);
 
     peerConnection.addEventListener("icecandidate", async (event) => {
       if (event.candidate) {
@@ -258,10 +292,13 @@ async function joinCall() {
   } catch (error) {
     closeCall(false);
     setStatus(error.message || "No se pudo unir a la videollamada.");
+  } finally {
+    callBusy = false;
   }
 }
 
 async function closeCall(updateFirebase = true) {
+  clearTimeout(ringTimer);
   if (updateFirebase && peerConnection) {
     try {
       await update(roomRef, { status: "ended", endedAt: Date.now() });
@@ -291,6 +328,7 @@ async function closeCall(updateFirebase = true) {
   cameraButton.textContent = "Cam";
   setCallButtons(false);
   isCaller = false;
+  activeSession = null;
 }
 
 microphoneButton.addEventListener("click", () => {
@@ -314,9 +352,19 @@ joinButton.addEventListener("click", joinCall);
 endButton.addEventListener("click", async () => {
   await closeCall(true);
   setStatus("Llamada finalizada.");
+  startButton.hidden = false;
 });
 
 window.addEventListener("pagehide", () => {
+  if (peerConnection) update(roomRef, { status: "ended", endedAt: Date.now() }).catch(() => {});
   localStream?.getTracks().forEach((track) => track.stop());
   peerConnection?.close();
 });
+
+const action = new URLSearchParams(location.search).get("accion");
+if (action === "aceptar") await joinCall();
+else if (action === "llamar") await startCall();
+else {
+  startButton.hidden = false;
+  setStatus(`Videollamada con ${otherName}.`);
+}
