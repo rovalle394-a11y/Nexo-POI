@@ -33,8 +33,10 @@
 
       <aside class="chats">
         <h3>Chats</h3>
-        <input class="search" placeholder="Buscar chats..." />
+        <input class="search" id="contact-search" placeholder="Buscar personas..." />
+        <div id="private-contacts"></div>
 
+        <div hidden>
         <a class="chat-item active" href="chat-privado.html">
           <div class="av">AT</div>
           <div><b>Ana Torres</b><small>En linea</small></div>
@@ -52,13 +54,15 @@
           <div class="av">CM</div>
           <div><b>Carlos Mendez</b><small>Ayer</small></div>
         </div>
+        </div>
         <a class="group-link" href="chat-grupal.html">Ver chats grupales</a>
       </aside>
 
       <main class="main">
         <div class="chat-head">
-          <div class="av">AT</div>
-          <div><b>Ana Torres</b><br /><small>En linea</small></div>
+          <div class="av" id="recipient-avatar">—</div>
+          <div><b id="recipient-name">Selecciona una persona</b><br /><small>Chat privado</small></div>
+          <div hidden>
           <label class="sender-label" for="current-user">
             Enviar como
             <select id="current-user">
@@ -66,11 +70,12 @@
               <option value="Luis Garcia">Luis Garcia</option>
             </select>
           </label>
+          </div>
           <label class="encryption-control" for="private-encryption">
             <input id="private-encryption" type="checkbox" />
             Cifrado
           </label>
-          <a class="call-button" href="videollamada.html" title="Iniciar videollamada">?</a>
+          <span class="call-button" title="Videollamada por cuenta pendiente de integrar">Video</span>
           <span class="more">...</span>
         </div>
 

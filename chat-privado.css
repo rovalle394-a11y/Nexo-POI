@@ -3,6 +3,17 @@
   text-decoration: none;
 }
 
+#private-contacts .chat-item {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  font: inherit;
+}
+
+#private-contacts .chat-item.active {
+  background: #fff;
+}
+
 .group-link {
   display: block;
   margin-top: 18px;

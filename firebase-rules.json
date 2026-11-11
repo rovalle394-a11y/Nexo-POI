@@ -1,0 +1,65 @@
+{
+  "rules": {
+    "usuarios": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid && newData.exists()",
+        ".validate": "newData.hasChildren(['nombre'])",
+        "nombre": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 80"
+        },
+        "$other": { ".validate": false }
+      }
+    },
+    "conversacionesPrivadas": {
+      "$chat": {
+        ".read": "auth != null && (!data.exists() || data.child('participantes').child(auth.uid).val() === true)",
+        ".write": "auth != null && !data.exists() && newData.hasChildren(['usuario1', 'usuario2', 'participantes']) && newData.child('usuario1').isString() && newData.child('usuario2').isString() && newData.child('usuario1').val() !== newData.child('usuario2').val() && newData.child('participantes').hasChildren([newData.child('usuario1').val(), newData.child('usuario2').val()]) && newData.child('participantes').child(auth.uid).val() === true && !newData.child('mensajes').exists()",
+        "usuario1": { ".validate": "newData.isString()" },
+        "usuario2": { ".validate": "newData.isString()" },
+        "participantes": {
+          "$uid": {
+            ".validate": "newData.val() === true && root.child('usuarios').child($uid).exists() && ($uid === newData.parent().parent().child('usuario1').val() || $uid === newData.parent().parent().child('usuario2').val())"
+          }
+        },
+        "mensajes": {
+          "$mensaje": {
+            ".write": "auth != null && data.parent().parent().child('participantes').child(auth.uid).val() === true && !data.exists() && newData.exists()",
+            ".validate": "newData.hasChildren(['usuario', 'usuarioUid', 'texto', 'fecha']) && newData.child('usuarioUid').val() === auth.uid && newData.child('usuario').val() === root.child('usuarios').child(auth.uid).child('nombre').val() && newData.child('texto').isString() && newData.child('texto').val().length > 0 && newData.child('texto').val().length <= 500 && newData.child('fecha').isNumber()"
+          }
+        },
+        "$other": { ".validate": false }
+      }
+    },
+    "chats": {
+      "chat-privado": {
+        "mensajes": { ".read": false, ".write": false }
+      },
+      "chat-grupal": {
+        "desarrollo-web": {
+          "mensajes": {
+            ".read": "auth != null",
+            "$mensaje": {
+              ".write": "auth != null && !data.exists() && newData.exists()",
+              ".validate": "newData.hasChildren(['grupo', 'usuario', 'usuarioUid', 'texto', 'fecha']) && newData.child('grupo').val() === 'Desarrollo Web' && newData.child('usuarioUid').val() === auth.uid && newData.child('usuario').isString() && newData.child('texto').isString() && newData.child('texto').val().length > 0 && newData.child('texto').val().length <= 500 && newData.child('fecha').isNumber()"
+            }
+          }
+        }
+      }
+    },
+    "grupos": {
+      "desarrollo-web": {
+        "tareas": {
+          ".read": "auth != null",
+          "$tarea": {
+            ".write": "auth != null && newData.exists() && ((!data.exists() && newData.child('creadorUid').val() === auth.uid && newData.child('completada').val() === false) || (data.exists() && data.child('completada').val() === false && newData.child('completada').val() === true && newData.child('completadaPorUid').val() === auth.uid && newData.child('titulo').val() === data.child('titulo').val() && newData.child('creador').val() === data.child('creador').val() && newData.child('creadorUid').val() === data.child('creadorUid').val() && newData.child('creadaEn').val() === data.child('creadaEn').val() && newData.child('fechaLimite').val() === data.child('fechaLimite').val()))",
+            ".validate": "newData.hasChildren(['titulo', 'grupo', 'creador', 'creadaEn', 'completada']) && newData.child('titulo').isString() && newData.child('titulo').val().length > 0 && newData.child('titulo').val().length <= 80 && newData.child('grupo').val() === 'Desarrollo Web' && newData.child('creador').isString() && newData.child('creadaEn').isNumber() && newData.child('completada').isBoolean() && (newData.child('completada').val() === false || (newData.child('completadaPor').isString() && newData.child('completadaEn').isNumber() && newData.child('fechaDia').isString()))"
+          }
+        }
+      }
+    },
+    "videollamadas": {
+      "privada-demo": { ".read": "auth != null", ".write": "auth != null" }
+    }
+  }
+}

@@ -1,4 +1,5 @@
-import { auth } from "./firebase-config.js";
+import { auth, database } from "./firebase-config.js";
+import { ref, set } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-database.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
 
 export function requireUser() {
@@ -21,6 +22,8 @@ export function initials(name) {
 export const sessionUser = await requireUser();
 const user = sessionUser;
 const name = user.displayName || "Usuario";
+export const directoryReady = set(ref(database, `usuarios/${user.uid}`), { nombre: name });
+directoryReady.catch(() => console.warn("Revisa las reglas del directorio de usuarios."));
 document.querySelectorAll(".topbar .av, .topbar .avatar").forEach((avatar) => {
   avatar.textContent = initials(name);
   avatar.title = name;
