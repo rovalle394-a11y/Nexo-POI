@@ -1,4 +1,5 @@
 import { database } from "./firebase-config.js";
+import { sessionUser, directoryReady } from "./auth-session.js";
 import {
   get,
   onChildAdded,
@@ -23,9 +24,33 @@ const localName = document.querySelector("#local-name");
 const remoteName = document.querySelector("#remote-name");
 const remoteEmpty = document.querySelector("#remote-empty");
 
-const roomRef = ref(database, "videollamadas/privada-demo");
-const callerCandidatesRef = ref(database, "videollamadas/privada-demo/callerCandidates");
-const calleeCandidatesRef = ref(database, "videollamadas/privada-demo/calleeCandidates");
+const otherUid = new URLSearchParams(window.location.search).get("usuario");
+const validPeer = Boolean(otherUid && otherUid !== sessionUser.uid && !/[.#$\[\]/]/.test(otherUid));
+if (!validPeer) {
+  window.location.replace("chat-privado.html");
+  await new Promise(() => {});
+}
+await directoryReady;
+const otherProfile = await get(ref(database, `usuarios/${otherUid}`));
+if (!otherProfile.exists()) {
+  window.location.replace("chat-privado.html");
+  await new Promise(() => {});
+}
+const otherName = otherProfile.val().nombre;
+const pair = [sessionUser.uid, otherUid].sort();
+const conversationPath = `conversacionesPrivadas/${pair.join("_")}`;
+const conversationRef = ref(database, conversationPath);
+const conversation = await get(conversationRef);
+if (!conversation.exists()) {
+  await set(conversationRef, {
+    usuario1: pair[0], usuario2: pair[1],
+    participantes: { [pair[0]]: true, [pair[1]]: true }
+  });
+}
+const roomPath = `${conversationPath}/llamada`;
+const roomRef = ref(database, roomPath);
+const callerCandidatesRef = ref(database, `${roomPath}/callerCandidates`);
+const calleeCandidatesRef = ref(database, `${roomPath}/calleeCandidates`);
 const rtcConfiguration = {
   iceServers: [{ urls: ["stun:stun.l.google.com:19302"] }]
 };
@@ -39,7 +64,8 @@ let unsubscribeRoom = null;
 let unsubscribeCandidates = null;
 let unsubscribeAnswer = null;
 
-userSelect.value = localStorage.getItem("nexo-call-user") || "Ana Torres";
+userSelect.replaceChildren(new Option(sessionUser.displayName || "Usuario", sessionUser.uid));
+userSelect.disabled = true;
 updateParticipantNames();
 
 userSelect.addEventListener("change", () => {
@@ -48,8 +74,8 @@ userSelect.addEventListener("change", () => {
 });
 
 function updateParticipantNames() {
-  localName.textContent = `${userSelect.value} (Tu)`;
-  remoteName.textContent = userSelect.value === "Ana Torres" ? "Luis Garcia" : "Ana Torres";
+  localName.textContent = `${sessionUser.displayName || "Usuario"} (Tu)`;
+  remoteName.textContent = otherName;
 }
 
 function setStatus(message) {
@@ -59,7 +85,7 @@ function setStatus(message) {
 function setCallButtons(inCall) {
   startButton.disabled = inCall;
   joinButton.disabled = inCall;
-  userSelect.disabled = inCall;
+  userSelect.disabled = true;
   endButton.disabled = !inCall;
   microphoneButton.disabled = !inCall;
   cameraButton.disabled = !inCall;
@@ -139,6 +165,12 @@ async function startCall() {
     setCallButtons(true);
     isCaller = true;
     pendingCandidates = [];
+    const existing = (await get(roomRef)).val();
+    if (existing && existing.status !== "ended") {
+      setCallButtons(false);
+      setStatus("Ya hay una llamada. Usa Unirse si la inicio la otra persona.");
+      return;
+    }
     await remove(roomRef);
     await prepareMedia();
 
@@ -150,17 +182,17 @@ async function startCall() {
 
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
-    await set(ref(database, "videollamadas/privada-demo/offer"), {
+    await set(ref(database, `${roomPath}/offer`), {
       type: offer.type,
       sdp: offer.sdp
     });
     await update(roomRef, {
-      caller: userSelect.value,
+      caller: sessionUser.uid,
       status: "ringing",
       createdAt: Date.now()
     });
 
-    unsubscribeAnswer = onValue(ref(database, "videollamadas/privada-demo/answer"), async (snapshot) => {
+    unsubscribeAnswer = onValue(ref(database, `${roomPath}/answer`), async (snapshot) => {
       const answer = snapshot.val();
       if (answer && peerConnection && !peerConnection.currentRemoteDescription) {
         await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
@@ -189,6 +221,10 @@ async function joinCall() {
       setStatus("No hay una llamada activa. Inicia la llamada desde el otro dispositivo.");
       return;
     }
+    if (room.caller === sessionUser.uid || room.status === "active") {
+      setStatus("Solo la otra cuenta puede unirse a una llamada pendiente.");
+      return;
+    }
 
     setCallButtons(true);
     isCaller = false;
@@ -209,12 +245,12 @@ async function joinCall() {
     await flushPendingCandidates();
     const answer = await peerConnection.createAnswer();
     await peerConnection.setLocalDescription(answer);
-    await set(ref(database, "videollamadas/privada-demo/answer"), {
+    await set(ref(database, `${roomPath}/answer`), {
       type: answer.type,
       sdp: answer.sdp
     });
     await update(roomRef, {
-      callee: userSelect.value,
+      callee: sessionUser.uid,
       status: "active"
     });
     listenForEnd();

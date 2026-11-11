@@ -3,6 +3,8 @@
   text-decoration: none;
 }
 
+.call-button[hidden] { display: none; }
+
 #private-contacts .chat-item {
   width: 100%;
   text-align: left;

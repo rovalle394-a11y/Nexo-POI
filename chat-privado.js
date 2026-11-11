@@ -56,8 +56,8 @@ async function render(snapshot, token) {
   const fragment = document.createDocumentFragment();
   const records = [];
   snapshot.forEach((child) => {
-  records.push(child.val());
-});
+    records.push(child.val());
+  });
   for (const message of records) {
     const row = document.createElement("div");
     row.className = message.usuarioUid === sessionUser.uid ? "msg me" : "msg";
@@ -93,6 +93,8 @@ async function openChat(user) {
   stop?.();
   target = null;
   selected = user.uid;
+  document.querySelector("#private-video-link").href = `videollamada.html?usuario=${encodeURIComponent(user.uid)}`;
+  document.querySelector("#private-video-link").hidden = false;
   input.value = "";
   document.querySelector("#recipient-name").textContent = user.nombre;
   document.querySelector("#recipient-avatar").textContent = initials(user.nombre);

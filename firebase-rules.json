@@ -22,6 +22,9 @@
             ".validate": "newData.val() === true && root.child('usuarios').child($uid).exists() && ($uid === newData.parent().parent().child('usuario1').val() || $uid === newData.parent().parent().child('usuario2').val())"
           }
         },
+        "llamada": {
+          ".write": "auth != null && data.parent().child('participantes').child(auth.uid).val() === true"
+        },
         "mensajes": {
           "$mensaje": {
             ".write": "auth != null && data.parent().parent().child('participantes').child(auth.uid).val() === true && !data.exists() && newData.exists()",
