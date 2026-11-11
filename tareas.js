@@ -1,4 +1,5 @@
 import { database } from "./firebase-config.js";
+import { sessionUser, initials } from "./auth-session.js";
 import {
   onValue,
   push,
@@ -29,8 +30,11 @@ const filterButtons = document.querySelectorAll("[data-filter]");
 let tasks = [];
 let activeFilter = "all";
 
-currentUser.value = localStorage.getItem("nexo-group-current-user") || "Ana Torres";
-topAvatar.textContent = users[currentUser.value];
+const accountName = sessionUser.displayName || "Usuario";
+currentUser.replaceChildren(new Option(accountName, accountName));
+currentUser.disabled = true;
+currentUser.closest("label").hidden = true;
+topAvatar.textContent = initials(accountName);
 
 function getDayKey(timestamp = Date.now()) {
   const date = new Date(timestamp);
@@ -54,7 +58,7 @@ function formatDate(value) {
 function updateDailyProgress() {
   const today = getDayKey();
   const completedToday = tasks.filter((task) => (
-    task.completadaPor === currentUser.value &&
+    task.completadaPorUid === sessionUser.uid &&
     task.fechaDia === today
   )).length;
   const validToday = Math.min(5, completedToday);
@@ -84,7 +88,7 @@ function createTaskRow(task) {
   date.textContent = formatDate(task.fechaLimite);
   status.className = task.completada ? "done" : "pending";
   status.textContent = task.completada ? "Completada" : "Pendiente";
-  creator.textContent = task.creador ? users[task.creador] || "US" : "US";
+  creator.textContent = initials(task.creador || "Usuario");
   creator.title = task.creador ? `Creada por ${task.creador}` : "Creador";
 
   checkbox.addEventListener("change", async () => {
@@ -97,6 +101,7 @@ function createTaskRow(task) {
         completada: true,
         completadaEn: Date.now(),
         completadaPor: currentUser.value,
+        completadaPorUid: sessionUser.uid,
         fechaDia: getDayKey()
       });
     } catch {
@@ -133,12 +138,6 @@ function renderTasks() {
   updateDailyProgress();
 }
 
-currentUser.addEventListener("change", () => {
-  localStorage.setItem("nexo-group-current-user", currentUser.value);
-  topAvatar.textContent = users[currentUser.value];
-  renderTasks();
-});
-
 newTaskButton.addEventListener("click", () => {
   taskForm.hidden = false;
   taskTitle.focus();
@@ -161,6 +160,7 @@ taskForm.addEventListener("submit", async (event) => {
       fechaLimite: taskDate.value || "",
       grupo: "Desarrollo Web",
       creador: currentUser.value,
+      creadorUid: sessionUser.uid,
       creadaEn: Date.now(),
       completada: false
     });

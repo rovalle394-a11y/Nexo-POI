@@ -18,7 +18,8 @@ export function initials(name) {
   return name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
 }
 
-const user = await requireUser();
+export const sessionUser = await requireUser();
+const user = sessionUser;
 const name = user.displayName || "Usuario";
 document.querySelectorAll(".topbar .av, .topbar .avatar").forEach((avatar) => {
   avatar.textContent = initials(name);

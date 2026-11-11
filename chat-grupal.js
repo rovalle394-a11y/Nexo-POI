@@ -1,4 +1,5 @@
 import { database } from "./firebase-config.js";
+import { sessionUser, initials } from "./auth-session.js";
 import { appendChatFile, uploadChatFile } from "./chat-files.js";
 import { createTextPayload, readMessageText } from "./chat-crypto.js";
 import {
@@ -27,16 +28,14 @@ const initialsByUser = {
   "Diego Martinez": "DM"
 };
 
-currentUser.value = localStorage.getItem("nexo-group-current-user") || "Ana Torres";
+const accountName = sessionUser.displayName || "Usuario";
+currentUser.replaceChildren(new Option(accountName, accountName));
+currentUser.disabled = true;
+currentUser.closest("label").hidden = true;
 encryptionInput.checked = localStorage.getItem("nexo-encryption-enabled") === "true";
 
 encryptionInput.addEventListener("change", () => {
   localStorage.setItem("nexo-encryption-enabled", String(encryptionInput.checked));
-});
-
-currentUser.addEventListener("change", () => {
-  localStorage.setItem("nexo-group-current-user", currentUser.value);
-  updateMessageSides();
 });
 
 function formatTime(timestamp) {
@@ -48,7 +47,7 @@ function formatTime(timestamp) {
 
 function updateMessageSides() {
   document.querySelectorAll(".msg[data-sender]").forEach((message) => {
-    message.classList.toggle("me", message.dataset.sender === currentUser.value);
+    message.classList.toggle("me", message.dataset.sender === sessionUser.uid);
   });
 }
 
@@ -69,9 +68,9 @@ async function showMessage(message) {
   const encryptionLabel = document.createElement("span");
 
   container.className = "msg";
-  container.dataset.sender = message.usuario;
+  container.dataset.sender = message.usuarioUid || "";
   avatar.className = "av";
-  avatar.textContent = initialsByUser[message.usuario] || "US";
+  avatar.textContent = initials(message.usuario);
   bubble.className = "bubble";
   sender.textContent = message.usuario;
   sender.style.fontSize = "11px";
@@ -121,6 +120,7 @@ form.addEventListener("submit", async (event) => {
     await push(messagesRef, {
       grupo: "Desarrollo Web",
       usuario: currentUser.value,
+      usuarioUid: sessionUser.uid,
       ...textPayload,
       fecha: Date.now()
     });
@@ -151,6 +151,7 @@ fileInput.addEventListener("change", async () => {
     await push(messagesRef, {
       grupo: "Desarrollo Web",
       usuario: currentUser.value,
+      usuarioUid: sessionUser.uid,
       ...textPayload,
       fecha: Date.now(),
       ...fileData

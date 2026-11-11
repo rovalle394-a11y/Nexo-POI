@@ -1,4 +1,5 @@
 import { database } from "./firebase-config.js";
+import { sessionUser, initials } from "./auth-session.js";
 import {
   onValue,
   ref
@@ -32,7 +33,7 @@ const medals = [
 
 let tasks = [];
 
-userSelect.value = localStorage.getItem("nexo-profile-user") || "Ana Torres";
+userSelect.replaceChildren(new Option(sessionUser.displayName || "Usuario", sessionUser.uid));
 
 function getTodayKey() {
   const date = new Date();
@@ -43,7 +44,7 @@ function getTodayKey() {
 }
 
 function getRewardStats(userName) {
-  const completed = tasks.filter((task) => task.completadaPor === userName);
+  const completed = tasks.filter((task) => task.completada && task.completadaPorUid === userName);
   const completedByDay = {};
 
   completed.forEach((task) => {
@@ -75,14 +76,15 @@ function updateMedalCard(medal, validTasks) {
 
 function renderProfile() {
   const selectedUser = userSelect.value;
-  const user = users[selectedUser];
+  const selectedName = userSelect.selectedOptions[0].textContent;
+  const user = { initials: initials(selectedName), username: selectedUser === sessionUser.uid ? "Mi perfil" : "Perfil del grupo" };
   const stats = getRewardStats(selectedUser);
   const earnedCount = medals.filter((medal) => stats.valid >= medal.threshold).length;
   const nextMedal = medals.find((medal) => stats.valid < medal.threshold);
 
   topAvatar.textContent = user.initials;
   profileAvatar.textContent = user.initials;
-  profileName.textContent = selectedUser;
+  profileName.textContent = selectedName;
   profileUsername.textContent = user.username;
   completedTotal.textContent = stats.completed;
   validTotal.textContent = stats.valid;
@@ -108,7 +110,6 @@ function renderProfile() {
 }
 
 userSelect.addEventListener("change", () => {
-  localStorage.setItem("nexo-profile-user", userSelect.value);
   renderProfile();
 });
 
@@ -118,6 +119,15 @@ onValue(tasksRef, (snapshot) => {
   snapshot.forEach((child) => {
     tasks.push({ id: child.key, ...child.val() });
   });
+
+  const selectedUid = userSelect.value;
+  const members = new Map([[sessionUser.uid, sessionUser.displayName || "Usuario"]]);
+  tasks.forEach((task) => {
+    if (task.creadorUid) members.set(task.creadorUid, task.creador);
+    if (task.completadaPorUid) members.set(task.completadaPorUid, task.completadaPor);
+  });
+  userSelect.replaceChildren(...Array.from(members, ([uid, name]) => new Option(name, uid)));
+  userSelect.value = members.has(selectedUid) ? selectedUid : sessionUser.uid;
 
   renderProfile();
 }, () => {
