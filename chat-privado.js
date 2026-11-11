@@ -55,7 +55,9 @@ async function render(snapshot, token) {
   const version = ++revision;
   const fragment = document.createDocumentFragment();
   const records = [];
-  snapshot.forEach((child) => records.push(child.val()));
+  snapshot.forEach((child) => {
+  records.push(child.val());
+});
   for (const message of records) {
     const row = document.createElement("div");
     row.className = message.usuarioUid === sessionUser.uid ? "msg me" : "msg";
