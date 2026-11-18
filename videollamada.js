@@ -108,12 +108,9 @@ async function prepareMedia() {
   peerConnection = new RTCPeerConnection(rtcConfiguration);
   localStream.getTracks().forEach((track) => peerConnection.addTrack(track, localStream));
 
-  peerConnection.addEventListener("track", (event) => {
-    event.streams[0].getTracks().forEach((track) => {
-      if (!remoteStream.getTracks().some((currentTrack) => currentTrack.id === track.id)) {
-        remoteStream.addTrack(track);
-      }
-    });
+  peerConnection.addEventListener("track", ({ track }) => {
+    if (!remoteStream || remoteStream.getTrackById(track.id)) return;
+    remoteStream.addTrack(track);
     remoteEmpty.hidden = true;
   });
 
@@ -138,14 +135,18 @@ async function addRemoteCandidate(candidateData) {
     return;
   }
 
-  await peerConnection.addIceCandidate(new RTCIceCandidate(candidateData));
+  try {
+    await peerConnection.addIceCandidate(candidateData);
+  } catch (error) {
+    console.warn("No se pudo aplicar un candidato ICE remoto.", error.name);
+  }
 }
 
 async function flushPendingCandidates() {
   const candidates = [...pendingCandidates];
   pendingCandidates = [];
   for (const candidate of candidates) {
-    await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+    await addRemoteCandidate(candidate);
   }
 }
 
@@ -160,17 +161,26 @@ function watchIceCandidates(connection, destination) {
   let saved = 0;
   let errors = 0;
   let lastError = "";
+  let browserError = "";
+  let publish;
+  const published = new Promise((resolve) => { publish = resolve; });
   function render() {
-    status.textContent = `ICE (${connection.iceGatheringState} / ${connection.iceConnectionState}): ${generated} generados, ${saved} guardados, ${errors} errores de guardado.${lastError ? ` ${lastError}` : ""}`;
+    status.textContent = `ICE (${connection.iceGatheringState} / ${connection.iceConnectionState}): ${generated} generados, ${saved} guardados, ${errors} errores de guardado. Señalización: ${connection.signalingState}.${lastError ? ` ${lastError}` : ""}${browserError ? ` ${browserError}` : ""}`;
   }
-  for (const event of ["icegatheringstatechange", "iceconnectionstatechange"]) {
+  for (const event of ["icegatheringstatechange", "iceconnectionstatechange", "signalingstatechange"]) {
     connection.addEventListener(event, render);
   }
+  connection.addEventListener("icecandidateerror", ({ errorCode }) => {
+    browserError = `Error ICE del navegador: ${errorCode}.`;
+    render();
+  });
   connection.addEventListener("icecandidate", async ({ candidate }) => {
     if (!candidate?.candidate) return;
     generated++;
     render();
     try {
+      await published;
+      if (peerConnection !== connection) return;
       await push(destination, candidate.toJSON());
       saved++;
     } catch (error) {
@@ -180,6 +190,13 @@ function watchIceCandidates(connection, destination) {
     render();
   });
   render();
+  setTimeout(() => {
+    if (peerConnection === connection && generated === 0 && !browserError) {
+      browserError = "El navegador no entregó candidatos en 15 segundos.";
+      render();
+    }
+  }, 15000);
+  return publish;
 }
 
 function listenForEnd() {
@@ -207,25 +224,37 @@ async function startCall() {
     await remove(roomRef);
     await prepareMedia();
 
-    watchIceCandidates(peerConnection, callerCandidatesRef);
+    const connection = peerConnection;
+    const publishCandidates = watchIceCandidates(connection, callerCandidatesRef);
 
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
-    await set(ref(database, `${roomPath}/offer`), {
-      type: offer.type,
-      sdp: offer.sdp
-    });
     await update(roomRef, {
+      offer: connection.localDescription.toJSON(),
       caller: sessionUser.uid,
       status: "ringing",
       createdAt: Date.now()
     });
+    publishCandidates();
+    setStatus("Llamada creada. Esperando a que el otro participante se una.");
 
+    let applyingAnswer = false;
     unsubscribeAnswer = onValue(ref(database, `${roomPath}/answer`), async (snapshot) => {
       const answer = snapshot.val();
-      if (answer && peerConnection && !peerConnection.currentRemoteDescription) {
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+      if (!answer || peerConnection !== connection || applyingAnswer ||
+          connection.signalingState !== "have-local-offer") return;
+      applyingAnswer = true;
+      try {
+        await connection.setRemoteDescription(answer);
+        if (peerConnection !== connection) return;
+        if (connection.connectionState !== "connected") {
+          setStatus("Respuesta aplicada. Conectando la videollamada...");
+        }
         await flushPendingCandidates();
+      } catch (error) {
+        if (peerConnection === connection) setStatus(`No se pudo aplicar la respuesta: ${error.name}.`);
+      } finally {
+        applyingAnswer = false;
       }
     });
 
@@ -233,7 +262,6 @@ async function startCall() {
       await addRemoteCandidate(snapshot.val());
     });
     listenForEnd();
-    setStatus("Llamada creada. Esperando a que el otro participante se una.");
   } catch (error) {
     closeCall(false);
     setStatus(error.message || "No se pudo iniciar la videollamada.");
@@ -246,7 +274,7 @@ async function joinCall() {
     const snapshot = await get(roomRef);
     const room = snapshot.val();
 
-    if (!room?.offer || room.status === "ended") {
+    if (!room?.offer || !["ringing", "active"].includes(room.status)) {
       setStatus("No hay una llamada activa. Inicia la llamada desde el otro dispositivo.");
       return;
     }
@@ -260,7 +288,8 @@ async function joinCall() {
     pendingCandidates = [];
     await prepareMedia();
 
-    watchIceCandidates(peerConnection, calleeCandidatesRef);
+    const connection = peerConnection;
+    const publishCandidates = watchIceCandidates(connection, calleeCandidatesRef);
 
     unsubscribeCandidates = onChildAdded(callerCandidatesRef, async (candidateSnapshot) => {
       await addRemoteCandidate(candidateSnapshot.val());
@@ -270,16 +299,14 @@ async function joinCall() {
     await flushPendingCandidates();
     const answer = await peerConnection.createAnswer();
     await peerConnection.setLocalDescription(answer);
-    await set(ref(database, `${roomPath}/answer`), {
-      type: answer.type,
-      sdp: answer.sdp
-    });
+    setStatus("Conectando la videollamada...");
     await update(roomRef, {
+      answer: connection.localDescription.toJSON(),
       callee: sessionUser.uid,
       status: "active"
     });
+    publishCandidates();
     listenForEnd();
-    setStatus("Conectando la videollamada...");
   } catch (error) {
     closeCall(false);
     setStatus(error.message || "No se pudo unir a la videollamada.");
