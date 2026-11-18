@@ -70,10 +70,10 @@ function createTaskRow(task) {
   checkbox.type = "checkbox";
   checkbox.checked = Boolean(task.completada);
   const taskGroup = groupId;
-  const canComplete = taskGroup !== "historial" && task.asignadoUid === sessionUser.uid;
+  const canComplete = taskGroup !== "historial" && task.creadorUid === sessionUser.uid;
   checkbox.disabled = Boolean(task.completada) || !canComplete;
-  checkbox.title = canComplete ? "Marcar como terminada" : "Solo la persona asignada puede completar esta tarea";
-  checkbox.setAttribute("aria-label", `Completar ${task.titulo}`);
+  checkbox.title = canComplete ? "Marcar como terminada" : "Solo quien creó la tarea puede marcarla como terminada";
+  checkbox.setAttribute("aria-label", `Marcar como terminada: ${task.titulo}`);
   title.textContent = task.titulo;
   group.className = "task-assignment";
   group.textContent = task.completada
@@ -99,8 +99,8 @@ function createTaskRow(task) {
       await update(ref(database), {
         [`${path}/completada`]: true,
         [`${path}/completadaEn`]: completedAt,
-        [`${path}/completadaPor`]: directory[sessionUser.uid]?.nombre || accountName,
-        [`avanceTareas/${sessionUser.uid}/${taskGroup}/${task.id}`]: completedAt
+        [`${path}/completadaPor`]: task.asignadoNombre,
+        [`avanceTareas/${task.asignadoUid}/${taskGroup}/${task.id}`]: completedAt
       });
     } catch {
       checkbox.checked = false;
@@ -199,7 +199,7 @@ function updateAssignees() {
   saveButton.disabled = savingTask || !options.length;
   assignmentHelp.textContent = groupId === "historial"
     ? "Tablero anterior de solo lectura. Las tareas completadas siguen contando para medallas."
-    : group ? "Solo la persona asignada puede marcar la tarea como terminada."
+    : group ? "Quien creó la tarea puede marcarla como terminada. El avance cuenta para la persona asignada."
     : "Crea un grupo desde Chats para asignar tareas a sus integrantes.";
 }
 
