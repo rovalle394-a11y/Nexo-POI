@@ -1,37 +1,31 @@
 import { database } from "./firebase-config.js";
-import { sessionUser, initials } from "./auth-session.js";
+import { sessionUser, directoryReady, initials } from "./auth-session.js";
 import { appendChatFile, uploadChatFile } from "./chat-files.js";
 import { createTextPayload, readMessageText } from "./chat-crypto.js";
 import {
   limitToLast,
-  onChildAdded,
+  get,
   onValue,
   push,
   query,
-  ref
+  ref,
+  update
 } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-database.js";
 
 const messages = document.querySelector("#group-messages");
 const status = document.querySelector("#group-status");
 const form = document.querySelector("#group-message-form");
 const input = document.querySelector("#group-message-input");
-const currentUser = document.querySelector("#group-current-user");
 const attachButton = document.querySelector("#group-attach-button");
 const fileInput = document.querySelector("#group-file-input");
 const encryptionInput = document.querySelector("#group-encryption");
-const messagesRef = ref(database, "chats/chat-grupal/desarrollo-web/mensajes");
-const recentMessages = query(messagesRef, limitToLast(100));
-
-const initialsByUser = {
-  "Ana Torres": "AT",
-  "Mariana Lopez": "ML",
-  "Diego Martinez": "DM"
-};
+const legacyRef = ref(database, "chats/chat-grupal/desarrollo-web/mensajes");
+let messagesRef = legacyRef;
+let activeName = "Desarrollo Web";
+let unsubscribe = () => {};
+let renderEpoch = 0;
 
 const accountName = sessionUser.displayName || "Usuario";
-currentUser.replaceChildren(new Option(accountName, accountName));
-currentUser.disabled = true;
-currentUser.closest("label").hidden = true;
 encryptionInput.checked = localStorage.getItem("nexo-encryption-enabled") === "true";
 
 encryptionInput.addEventListener("change", () => {
@@ -51,12 +45,10 @@ function updateMessageSides() {
   });
 }
 
-async function showMessage(message) {
+async function showMessage(message, epoch) {
   if (!message || typeof message.texto !== "string" || typeof message.usuario !== "string") {
     return;
   }
-
-  status?.remove();
 
   const container = document.createElement("div");
   const avatar = document.createElement("div");
@@ -72,9 +64,10 @@ async function showMessage(message) {
   avatar.className = "av";
   avatar.textContent = initials(message.usuario);
   bubble.className = "bubble";
-  sender.textContent = message.usuario;
+  sender.textContent = message.usuarioUid ? message.usuario : `${message.usuario} · historial anterior`;
   sender.style.fontSize = "11px";
   text.textContent = await readMessageText(message);
+  if (epoch !== renderEpoch) return;
   time.textContent = formatTime(message.fecha);
   encryptionLabel.className = "encrypted-label";
   encryptionLabel.textContent = "Mensaje cifrado";
@@ -91,19 +84,138 @@ async function showMessage(message) {
   messages.scrollTop = messages.scrollHeight;
 }
 
-onChildAdded(recentMessages, (snapshot) => {
-  showMessage(snapshot.val());
-}, () => {
-  if (status) {
-    status.textContent = "No se pudo conectar. Revisa las reglas de Firebase.";
+function openGroup(button, id, group) {
+  unsubscribe();
+  ++renderEpoch;
+  messages.replaceChildren(status);
+  status.textContent = "Cargando mensajes...";
+  messagesRef = id ? ref(database, `mensajesGrupales/${id}`) : legacyRef;
+  activeName = group?.nombre || "Desarrollo Web";
+  document.querySelector("#active-group-name").textContent = activeName;
+  document.querySelector("#active-group-avatar").textContent = initials(activeName);
+  document.querySelector("#active-group-members").textContent = group
+    ? memberNames(group).join(", ")
+    : "Chat grupal compartido";
+  document.querySelectorAll(".group-entry").forEach((entry) => {
+    entry.classList.toggle("active", entry === button);
+    if (entry === button) entry.setAttribute("aria-current", "true");
+    else entry.removeAttribute("aria-current");
+  });
+  unsubscribe = onValue(query(messagesRef, limitToLast(100)), async (snapshot) => {
+    const epoch = ++renderEpoch;
+    messages.replaceChildren();
+    const records = [];
+    snapshot.forEach((child) => { records.push(child.val()); });
+    if (!records.length) {
+      status.textContent = "Aún no hay mensajes. Escribe el primero.";
+      messages.append(status);
+    }
+    for (const record of records) {
+      try { await showMessage(record, epoch); } catch (error) { console.warn(error); }
+      if (epoch !== renderEpoch) break;
+    }
+  }, () => {
+    ++renderEpoch;
+    status.textContent = "No se pudo abrir el chat. Revisa las reglas de Firebase.";
+    messages.replaceChildren(status);
+  });
+}
+
+const legacyButton = document.querySelector("#legacy-group");
+let directory = {};
+let selectedGroup = null;
+const memberNames = (group) => Object.keys(group.miembros).map((uid) => directory[uid]?.nombre || "Integrante");
+legacyButton.addEventListener("click", () => {
+  selectedGroup = null;
+  openGroup(legacyButton);
+});
+openGroup(legacyButton);
+
+const createForm = document.querySelector("#create-group");
+const people = document.querySelector("#group-people");
+const feedback = document.querySelector("#create-group-status");
+const createButton = createForm.querySelector("button");
+const groupsList = document.querySelector("#my-groups");
+let saving = false;
+
+function reportGroupError() {
+  feedback.textContent = "No se pudieron cargar los grupos o las cuentas. Revisa las reglas de Firebase.";
+  createForm.closest("details").open = true;
+}
+
+directoryReady.then(() => {
+  onValue(ref(database, "usuarios"), (snapshot) => {
+    const checked = new Set(new FormData(createForm).getAll("integrante"));
+    directory = snapshot.val() || {};
+    people.replaceChildren();
+    for (const [uid, person] of Object.entries(directory)) {
+      if (uid === sessionUser.uid) continue;
+      const label = document.createElement("label");
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.name = "integrante";
+      checkbox.value = uid;
+      checkbox.checked = checked.has(uid);
+      label.append(checkbox, person.nombre);
+      people.append(label);
+    }
+    createButton.disabled = saving || people.childElementCount < 2;
+    if (people.childElementCount < 2) people.append("Se necesitan otras dos cuentas registradas.");
+    if (selectedGroup) document.querySelector("#active-group-members").textContent = memberNames(selectedGroup).join(", ");
+  }, reportGroupError);
+  onValue(ref(database, `gruposPorUsuario/${sessionUser.uid}`), async (snapshot) => {
+    for (const id of Object.keys(snapshot.val() || {})) {
+      if (document.getElementById(`group-${id}`)) continue;
+      try {
+        const group = (await get(ref(database, `chatsGrupales/${id}`))).val();
+        if (!group || document.getElementById(`group-${id}`)) continue;
+        const button = document.createElement("button");
+        button.type = "button";
+        button.id = `group-${id}`;
+        button.className = "chat-item group-entry";
+        button.textContent = group.nombre;
+        button.addEventListener("click", () => {
+          selectedGroup = group;
+          openGroup(button, id, group);
+        });
+        groupsList.append(button);
+      } catch { reportGroupError(); }
+    }
+  }, reportGroupError);
+}).catch(reportGroupError);
+
+createForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (saving) return;
+  const fields = new FormData(createForm);
+  const name = fields.get("nombre").trim();
+  const invited = fields.getAll("integrante");
+  if (!name || invited.length < 2) {
+    feedback.textContent = "Escribe un nombre y elige al menos dos personas.";
+    return;
+  }
+  saving = true;
+  createButton.disabled = true;
+  const id = push(ref(database, "chatsGrupales")).key;
+  const members = [sessionUser.uid, ...invited];
+  const writes = {
+    [`chatsGrupales/${id}`]: {
+      nombre: name, creador: sessionUser.uid, invitado1: invited[0], invitado2: invited[1],
+      miembros: Object.fromEntries(members.map((uid) => [uid, true]))
+    }
+  };
+  for (const uid of members) writes[`gruposPorUsuario/${uid}/${id}`] = true;
+  try {
+    await update(ref(database), writes);
+    createForm.reset();
+    feedback.textContent = "Grupo creado. Ábrelo desde tu lista.";
+  } catch {
+    feedback.textContent = "No se pudo crear el grupo. Revisa la conexión y las reglas.";
+  } finally {
+    saving = false;
+    createButton.disabled = people.childElementCount < 2;
   }
 });
-
-onValue(recentMessages, (snapshot) => {
-  if (!snapshot.exists() && status) {
-    status.textContent = "Aun no hay mensajes. Escribe el primero.";
-  }
-}, { onlyOnce: true });
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -114,12 +226,14 @@ form.addEventListener("submit", async (event) => {
   }
 
   input.disabled = true;
+  const target = messagesRef;
+  const groupName = activeName;
 
   try {
     const textPayload = await createTextPayload(text, encryptionInput.checked);
-    await push(messagesRef, {
-      grupo: "Desarrollo Web",
-      usuario: currentUser.value,
+    await push(target, {
+      grupo: groupName,
+      usuario: accountName,
       usuarioUid: sessionUser.uid,
       ...textPayload,
       fecha: Date.now()
@@ -138,6 +252,8 @@ attachButton.addEventListener("click", () => fileInput.click());
 fileInput.addEventListener("change", async () => {
   const file = fileInput.files[0];
   if (!file) return;
+  const target = messagesRef;
+  const groupName = activeName;
 
   attachButton.disabled = true;
   attachButton.textContent = "Subiendo...";
@@ -148,9 +264,9 @@ fileInput.addEventListener("change", async () => {
       `Adjunto: ${file.name}`,
       encryptionInput.checked
     );
-    await push(messagesRef, {
-      grupo: "Desarrollo Web",
-      usuario: currentUser.value,
+    await push(target, {
+      grupo: groupName,
+      usuario: accountName,
       usuarioUid: sessionUser.uid,
       ...textPayload,
       fecha: Date.now(),

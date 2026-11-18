@@ -180,3 +180,7 @@ body {
   .sidebar { width: 100%; }
   .feed { overflow: visible; }
 }
+
+.home-shortcuts { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); }
+.home-shortcuts a { display: flex; align-items: center; min-height: 44px; padding: 12px; border: 1px solid #dddccd; border-radius: 10px; background: #eef2e8; color: #344b32; text-decoration: none; }
+.home-shortcuts a:hover { background: #e4e9dd; }

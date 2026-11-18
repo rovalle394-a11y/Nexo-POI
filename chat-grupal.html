@@ -16,7 +16,6 @@
       <div class="dot y"></div>
       <div class="dot g"></div>
     </div>
-
     <div class="topbar">
       <div class="logo">Nexo</div>
       <div class="av">AT</div>
@@ -51,75 +50,37 @@
           <a href="chat-privado.html">Privados</a>
           <a href="chat-grupal.html" aria-current="page">Grupales</a>
         </nav>
-        <input class="search" placeholder="Buscar chats..." />
         <div class="group-label">Grupos</div>
-
-        <div class="chat-item active">
-          <div class="av">DW</div>
-          <div>
-            <b>Desarrollo Web</b>
-            <small>3 integrantes</small>
-          </div>
-          <span class="time">10:24</span>
-        </div>
-
-        <div class="chat-item">
-          <div class="av">DI</div>
-          <div>
-            <b>Diseno</b>
-            <small>8 miembros</small>
-          </div>
-          <span class="time">09:12</span>
-        </div>
-
-        <div class="chat-item">
-          <div class="av">PF</div>
-          <div>
-            <b>Proyecto Final</b>
-            <small>6 miembros</small>
-          </div>
-          <span class="time">Ayer</span>
-        </div>
-
-        <div class="chat-item">
-          <div class="av">IN</div>
-          <div>
-            <b>Ingles</b>
-            <small>10 miembros</small>
-          </div>
-          <span class="time">Ayer</span>
-        </div>
-
-        <div class="chat-item">
-          <div class="av">ID</div>
-          <div>
-            <b>Ideas</b>
-            <small>5 miembros</small>
-          </div>
-          <span class="time">Lun</span>
-        </div>
+        <button type="button" class="chat-item active group-entry" id="legacy-group" aria-current="true">
+          <span class="av">DW</span>
+          <span><b>Desarrollo Web</b><small>Chat compartido</small></span>
+        </button>
+        <div id="my-groups"></div>
+        <details class="group-create">
+          <summary>Crear grupo</summary>
+          <form id="create-group">
+            <label>Nombre <input name="nombre" maxlength="60" required /></label>
+            <fieldset>
+              <legend>Elige al menos dos personas</legend>
+              <div id="group-people">Cargando cuentas...</div>
+            </fieldset>
+            <button type="submit" disabled>Crear</button>
+            <p id="create-group-status" role="status"></p>
+          </form>
+        </details>
       </aside>
 
       <main class="main">
         <div class="chat-head">
-          <div class="av">DW</div>
+          <div class="av" id="active-group-avatar">DW</div>
           <div>
-            <b>Desarrollo Web</b><br />
-            <small>Ana, Mariana y Diego</small>
+            <b id="active-group-name">Desarrollo Web</b><br />
+            <small id="active-group-members">Chat grupal compartido</small>
           </div>
-          <label class="sender-label" for="group-current-user">
-            Enviar como
-            <select id="group-current-user">
-              <option value="Ana Torres">Ana Torres</option>
-              <option value="Mariana Lopez">Mariana Lopez</option>
-              <option value="Diego Martinez">Diego Martinez</option>
-            </select>
-          </label>
           <label class="encryption-control" for="group-encryption">
             <input id="group-encryption" type="checkbox" />
             Cifrado
           </label>
-          <span style="margin-left:auto;font-weight:700;letter-spacing:2px;color:#8A8378">...</span>
         </div>
 
         <div class="msgs" id="group-messages" aria-live="polite">

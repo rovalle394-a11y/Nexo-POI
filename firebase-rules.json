@@ -34,6 +34,42 @@
         "$other": { ".validate": false }
       }
     },
+    "chatsGrupales": {
+      "$gid": {
+        ".read": "auth != null && data.child('miembros').child(auth.uid).val() === true",
+        ".write": "auth != null && !data.exists() && newData.exists() && newData.child('creador').val() === auth.uid",
+        ".validate": "newData.hasChildren(['nombre', 'creador', 'invitado1', 'invitado2', 'miembros']) && newData.child('nombre').isString() && newData.child('nombre').val().length > 0 && newData.child('nombre').val().length <= 60 && newData.child('invitado1').isString() && newData.child('invitado2').isString() && newData.child('invitado1').val() !== newData.child('invitado2').val() && newData.child('invitado1').val() !== auth.uid && newData.child('invitado2').val() !== auth.uid && newData.child('miembros').hasChildren([auth.uid, newData.child('invitado1').val(), newData.child('invitado2').val()])",
+        "nombre": { ".validate": "newData.isString()" },
+        "creador": { ".validate": "newData.isString()" },
+        "invitado1": { ".validate": "newData.isString()" },
+        "invitado2": { ".validate": "newData.isString()" },
+        "miembros": {
+          "$uid": {
+            ".validate": "newData.val() === true && root.child('usuarios').child($uid).exists() && newData.parent().parent().parent().parent().child('gruposPorUsuario').child($uid).child($gid).val() === true"
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "gruposPorUsuario": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$gid": {
+          ".write": "auth != null && !data.exists() && newData.val() === true && newData.parent().parent().parent().child('chatsGrupales').child($gid).child('creador').val() === auth.uid && newData.parent().parent().parent().child('chatsGrupales').child($gid).child('miembros').child($uid).val() === true"
+        }
+      }
+    },
+    "mensajesGrupales": {
+      "$gid": {
+        ".read": "auth != null && root.child('chatsGrupales').child($gid).child('miembros').child(auth.uid).val() === true",
+        "$msg": {
+          ".write": "auth != null && !data.exists() && newData.exists() && root.child('chatsGrupales').child($gid).child('miembros').child(auth.uid).val() === true",
+          ".validate": "newData.hasChildren(['grupo', 'usuario', 'usuarioUid', 'texto', 'fecha']) && newData.child('usuarioUid').val() === auth.uid && newData.child('usuario').val() === root.child('usuarios').child(auth.uid).child('nombre').val() && newData.child('grupo').val() === root.child('chatsGrupales').child($gid).child('nombre').val() && newData.child('texto').isString() && newData.child('texto').val().length > 0 && newData.child('texto').val().length <= 500 && newData.child('fecha').isNumber()"
+        }
+      }
+    },
     "chats": {
       "chat-privado": {
         "mensajes": { ".read": false, ".write": false }

@@ -149,6 +149,18 @@ body {
 .chat-item.active, .chat-item:hover { background: #fff; border-color: #E8E0D3; }
 .chat-item b { font-size: 12.5px; display: block; }
 .chat-item small { font-size: 11px; color: #8A8378; }
+.group-entry { width: 100%; text-align: left; font: inherit; color: inherit; background: transparent; }
+.group-entry span { overflow-wrap: anywhere; }
+.group-entry small { display: block; }
+.group-create { padding: 12px 0; }
+.group-create summary { cursor: pointer; font-weight: 600; }
+.group-create form { display: grid; gap: 10px; margin-top: 12px; }
+.group-create input[name="nombre"], .group-create fieldset { width: 100%; min-width: 0; padding: 8px; border: 1px solid #e6e1d6; border-radius: 8px; }
+#group-people { max-height: 155px; overflow: auto; }
+#group-people label { display: flex; gap: 8px; padding: 5px; overflow-wrap: anywhere; }
+.group-create button { min-height: 40px; background: #4c604b; color: white; border: 0; border-radius: 8px; }
+.group-create button:disabled { opacity: .6; }
+#active-group-members { overflow-wrap: anywhere; }
 .time { margin-left: auto; font-size: 10.5px; color: #8A8378; }
 
 .main { flex: 1; display: flex; flex-direction: column; background: #fff; min-width: 0; }
