@@ -12,7 +12,7 @@ const users = {
 };
 
 const tasksRef = ref(database, "grupos/desarrollo-web/tareas");
-const userSelect = document.querySelector("#profile-user-select");
+const otherMedals = document.querySelector("#other-medals");
 const topAvatar = document.querySelector(".top-right .avatar");
 const profileAvatar = document.querySelector("#profile-avatar");
 const profileName = document.querySelector("#profile-name");
@@ -32,8 +32,6 @@ const medals = [
 ];
 
 let tasks = [];
-
-userSelect.replaceChildren(new Option(sessionUser.displayName || "Usuario", sessionUser.uid));
 
 function getTodayKey() {
   const date = new Date();
@@ -75,10 +73,9 @@ function updateMedalCard(medal, validTasks) {
 }
 
 function renderProfile() {
-  const selectedUser = userSelect.value;
-  const selectedName = userSelect.selectedOptions[0].textContent;
-  const user = { initials: initials(selectedName), username: selectedUser === sessionUser.uid ? "Mi perfil" : "Perfil del grupo" };
-  const stats = getRewardStats(selectedUser);
+  const selectedName = sessionUser.displayName || "Usuario";
+  const user = { initials: initials(selectedName), username: "Mi perfil" };
+  const stats = getRewardStats(sessionUser.uid);
   const earnedCount = medals.filter((medal) => stats.valid >= medal.threshold).length;
   const nextMedal = medals.find((medal) => stats.valid < medal.threshold);
 
@@ -109,9 +106,31 @@ function renderProfile() {
   }
 }
 
-userSelect.addEventListener("change", () => {
-  renderProfile();
-});
+function renderOtherMedals() {
+  const members = new Map();
+  for (const task of tasks) {
+    if (task.completada && task.completadaPorUid && task.completadaPorUid !== sessionUser.uid) {
+      members.set(task.completadaPorUid, task.completadaPor || "Integrante");
+    }
+  }
+  otherMedals.replaceChildren();
+  const names = ["Bronce", "Plata", "Oro"];
+  for (const [uid, name] of [...members].sort((a, b) => a[1].localeCompare(b[1], "es"))) {
+    const { valid } = getRewardStats(uid);
+    const earned = names.filter((_, index) => valid >= medals[index].threshold);
+    if (!earned.length) continue;
+    const item = document.createElement("li");
+    const holder = document.createElement("strong");
+    holder.textContent = name;
+    item.append(holder, ` · ${earned.join(", ")}`);
+    otherMedals.append(item);
+  }
+  if (!otherMedals.children.length) {
+    const empty = document.createElement("li");
+    empty.textContent = "Todavía no hay medallas de otros usuarios.";
+    otherMedals.append(empty);
+  }
+}
 
 onValue(tasksRef, (snapshot) => {
   tasks = [];
@@ -120,19 +139,13 @@ onValue(tasksRef, (snapshot) => {
     tasks.push({ id: child.key, ...child.val() });
   });
 
-  const selectedUid = userSelect.value;
-  const members = new Map([[sessionUser.uid, sessionUser.displayName || "Usuario"]]);
-  tasks.forEach((task) => {
-    if (task.creadorUid) members.set(task.creadorUid, task.creador);
-    if (task.asignadoUid) members.set(task.asignadoUid, task.asignadoNombre);
-    if (task.completadaPorUid) members.set(task.completadaPorUid, task.completadaPor);
-  });
-  userSelect.replaceChildren(...Array.from(members, ([uid, name]) => new Option(name, uid)));
-  userSelect.value = members.has(selectedUid) ? selectedUid : sessionUser.uid;
-
   renderProfile();
+  renderOtherMedals();
 }, () => {
   completedTotal.textContent = "-";
   validTotal.textContent = "-";
   validToday.textContent = "-";
+  const error = document.createElement("li");
+  error.textContent = "No se pudieron cargar las medallas.";
+  otherMedals.replaceChildren(error);
 });
