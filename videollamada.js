@@ -11,7 +11,6 @@ import {
   update
 } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-database.js";
 
-const userSelect = document.querySelector("#call-user");
 const startButton = document.querySelector("#start-call");
 const joinButton = document.querySelector("#join-call");
 const endButton = document.querySelector("#end-call");
@@ -64,19 +63,8 @@ let unsubscribeRoom = null;
 let unsubscribeCandidates = null;
 let unsubscribeAnswer = null;
 
-userSelect.replaceChildren(new Option(sessionUser.displayName || "Usuario", sessionUser.uid));
-userSelect.disabled = true;
-updateParticipantNames();
-
-userSelect.addEventListener("change", () => {
-  localStorage.setItem("nexo-call-user", userSelect.value);
-  updateParticipantNames();
-});
-
-function updateParticipantNames() {
-  localName.textContent = `${sessionUser.displayName || "Usuario"} (Tu)`;
-  remoteName.textContent = otherName;
-}
+localName.textContent = `${sessionUser.displayName || "Usuario"} (Tu)`;
+remoteName.textContent = otherName;
 
 function setStatus(message) {
   status.textContent = message;
@@ -85,7 +73,6 @@ function setStatus(message) {
 function setCallButtons(inCall) {
   startButton.disabled = inCall;
   joinButton.disabled = inCall;
-  userSelect.disabled = true;
   endButton.disabled = !inCall;
   microphoneButton.disabled = !inCall;
   cameraButton.disabled = !inCall;
@@ -153,6 +140,7 @@ async function flushPendingCandidates() {
 function watchIceCandidates(connection, destination) {
   const status = document.createElement("p");
   status.id = "ice-diagnostics";
+  status.hidden = true;
   status.setAttribute("role", "status");
   document.querySelector("#ice-diagnostics")?.remove();
   document.querySelector("#call-status").after(status);
