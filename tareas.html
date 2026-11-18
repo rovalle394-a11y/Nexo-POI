@@ -62,11 +62,18 @@
             Fecha limite
             <input id="task-date" type="date" />
           </label>
+          <label for="task-assignee">
+            Asignar a
+            <select id="task-assignee" required disabled>
+              <option value="">Cargando personas...</option>
+            </select>
+          </label>
           <div class="form-actions">
             <button type="submit">Guardar tarea</button>
             <button id="cancel-task-button" type="button">Cancelar</button>
           </div>
         </form>
+        <p class="assignment-help" id="assignment-help" role="status">Las nuevas tareas se asignan a otra persona del grupo. Solo esa persona puede marcarlas como terminadas.</p>
 
         <div class="daily-limit">
           <div>

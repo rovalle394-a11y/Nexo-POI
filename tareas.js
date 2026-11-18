@@ -1,17 +1,11 @@
 import { database } from "./firebase-config.js";
-import { sessionUser, initials } from "./auth-session.js";
+import { sessionUser, directoryReady, initials } from "./auth-session.js";
 import {
   onValue,
   push,
   ref,
-  update
+  runTransaction
 } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-database.js";
-
-const users = {
-  "Ana Torres": "AT",
-  "Mariana Lopez": "ML",
-  "Diego Martinez": "DM"
-};
 
 const tasksRef = ref(database, "grupos/desarrollo-web/tareas");
 const currentUser = document.querySelector("#task-current-user");
@@ -21,6 +15,9 @@ const cancelTaskButton = document.querySelector("#cancel-task-button");
 const taskForm = document.querySelector("#task-form");
 const taskTitle = document.querySelector("#task-title");
 const taskDate = document.querySelector("#task-date");
+const taskAssignee = document.querySelector("#task-assignee");
+const saveButton = taskForm.querySelector('button[type="submit"]');
+const assignmentHelp = document.querySelector("#assignment-help");
 const tasksList = document.querySelector("#tasks-list");
 const tasksStatus = document.querySelector("#tasks-status");
 const dailyCount = document.querySelector("#daily-count");
@@ -29,6 +26,8 @@ const filterButtons = document.querySelectorAll("[data-filter]");
 
 let tasks = [];
 let activeFilter = "all";
+let members = new Map();
+let savingTask = false;
 
 const accountName = sessionUser.displayName || "Usuario";
 currentUser.replaceChildren(new Option(accountName, accountName));
@@ -79,12 +78,18 @@ function createTaskRow(task) {
   row.className = "task-row";
   checkbox.type = "checkbox";
   checkbox.checked = Boolean(task.completada);
-  checkbox.disabled = Boolean(task.completada);
+  const canComplete = !task.asignadoUid || task.asignadoUid === sessionUser.uid;
+  checkbox.disabled = Boolean(task.completada) || !canComplete;
+  checkbox.title = canComplete ? "Marcar como terminada" : "Solo la persona asignada puede completar esta tarea";
   checkbox.setAttribute("aria-label", `Completar ${task.titulo}`);
   title.textContent = task.titulo;
+  group.className = "task-assignment";
   group.textContent = task.completada
-    ? `Por ${task.completadaPor}`
-    : "Desarrollo Web";
+    ? `Terminada por ${task.completadaPor}`
+    : task.asignadoUid
+      ? `Para ${task.asignadoNombre}${task.asignadoUid === sessionUser.uid ? " (tú)" : ""}`
+      : "Compartida (tarea anterior)";
+  group.title = `Creada por ${task.creador || "Usuario"}`;
   date.textContent = formatDate(task.fechaLimite);
   status.className = task.completada ? "done" : "pending";
   status.textContent = task.completada ? "Completada" : "Pendiente";
@@ -92,21 +97,30 @@ function createTaskRow(task) {
   creator.title = task.creador ? `Creada por ${task.creador}` : "Creador";
 
   checkbox.addEventListener("change", async () => {
-    if (!checkbox.checked || task.completada) return;
+    if (!checkbox.checked || task.completada || !canComplete) return;
 
     checkbox.disabled = true;
 
     try {
-      await update(ref(database, `grupos/desarrollo-web/tareas/${task.id}`), {
-        completada: true,
-        completadaEn: Date.now(),
-        completadaPor: currentUser.value,
-        completadaPorUid: sessionUser.uid,
-        fechaDia: getDayKey()
+      const completedAt = Date.now();
+      const result = await runTransaction(ref(database, `grupos/desarrollo-web/tareas/${task.id}`), (latest) => {
+        if (!latest || latest.completada || (latest.asignadoUid && latest.asignadoUid !== sessionUser.uid)) return;
+        return {
+          ...latest,
+          completada: true,
+          completadaEn: completedAt,
+          completadaPor: accountName,
+          completadaPorUid: sessionUser.uid,
+          fechaDia: getDayKey(completedAt)
+        };
       });
+      if (!result.committed) {
+        window.alert("La tarea ya fue completada o no está asignada a tu cuenta.");
+        renderTasks();
+      }
     } catch {
       checkbox.checked = false;
-      checkbox.disabled = false;
+      checkbox.disabled = !canComplete;
       window.alert("No se pudo completar la tarea. Revisa la conexion.");
     }
   });
@@ -151,8 +165,16 @@ cancelTaskButton.addEventListener("click", () => {
 taskForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const title = taskTitle.value.trim();
+  const assigneeUid = taskAssignee.value;
+  const assigneeName = members.get(assigneeUid);
 
-  if (!title) return;
+  if (!title || savingTask) return;
+  if (!assigneeName || assigneeUid === sessionUser.uid) {
+    window.alert("Selecciona otra persona para asignarle la tarea.");
+    return;
+  }
+  savingTask = true;
+  saveButton.disabled = true;
 
   try {
     await push(tasksRef, {
@@ -161,6 +183,8 @@ taskForm.addEventListener("submit", async (event) => {
       grupo: "Desarrollo Web",
       creador: currentUser.value,
       creadorUid: sessionUser.uid,
+      asignadoUid: assigneeUid,
+      asignadoNombre: assigneeName,
       creadaEn: Date.now(),
       completada: false
     });
@@ -168,7 +192,37 @@ taskForm.addEventListener("submit", async (event) => {
     taskForm.hidden = true;
   } catch {
     window.alert("No se pudo crear la tarea. Revisa la conexion.");
+  } finally {
+    savingTask = false;
+    saveButton.disabled = taskAssignee.disabled;
   }
+});
+
+directoryReady.then(() => {
+  onValue(ref(database, "usuarios"), (snapshot) => {
+    const previous = taskAssignee.value;
+    members = new Map();
+    snapshot.forEach((child) => {
+      if (child.key !== sessionUser.uid && child.val()?.nombre) {
+        members.set(child.key, child.val().nombre);
+      }
+    });
+    const options = [...members].sort((a, b) => a[1].localeCompare(b[1], "es"));
+    taskAssignee.replaceChildren(new Option(options.length ? "Selecciona una persona" : "No hay otra persona disponible", ""), ...options.map(([uid, name]) => new Option(name, uid)));
+    if (members.has(previous)) taskAssignee.value = previous;
+    taskAssignee.disabled = options.length === 0;
+    saveButton.disabled = savingTask || options.length === 0;
+    assignmentHelp.textContent = options.length
+      ? "Las nuevas tareas se asignan a otra persona del grupo. Solo esa persona puede marcarlas como terminadas."
+      : "Para asignar una tarea, otra persona debe iniciar sesión en Nexo. Las tareas siguen perteneciendo al grupo Desarrollo Web.";
+  }, () => {
+    taskAssignee.disabled = true;
+    saveButton.disabled = true;
+    assignmentHelp.textContent = "No se pudieron cargar las personas. Revisa la conexión y las reglas de Firebase.";
+  });
+}).catch(() => {
+  assignmentHelp.textContent = "No se pudo cargar tu cuenta. Vuelve a iniciar sesión.";
+  saveButton.disabled = true;
 });
 
 filterButtons.forEach((button) => {

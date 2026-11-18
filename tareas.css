@@ -63,7 +63,7 @@
 
 .task-form {
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) 170px auto;
+  grid-template-columns: minmax(180px, 1.5fr) 160px minmax(180px, 1fr);
   gap: 12px;
   align-items: end;
   margin-top: 16px;
@@ -76,6 +76,27 @@
 .task-form[hidden] {
   display: none;
 }
+
+.task-form select {
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid #e8e0d3;
+  border-radius: 9px;
+  background: #fdfbf7;
+  color: #4f4a42;
+  font: inherit;
+}
+
+.assignment-help {
+  margin-top: 14px;
+  color: #6b655b;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.task-form .form-actions { grid-column: 1 / -1; }
+.task-assignment { overflow-wrap: anywhere; }
 
 .form-actions {
   display: flex;

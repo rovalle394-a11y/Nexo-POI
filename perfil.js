@@ -124,6 +124,7 @@ onValue(tasksRef, (snapshot) => {
   const members = new Map([[sessionUser.uid, sessionUser.displayName || "Usuario"]]);
   tasks.forEach((task) => {
     if (task.creadorUid) members.set(task.creadorUid, task.creador);
+    if (task.asignadoUid) members.set(task.asignadoUid, task.asignadoNombre);
     if (task.completadaPorUid) members.set(task.completadaPorUid, task.completadaPor);
   });
   userSelect.replaceChildren(...Array.from(members, ([uid, name]) => new Option(name, uid)));
