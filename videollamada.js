@@ -149,6 +149,39 @@ async function flushPendingCandidates() {
   }
 }
 
+function watchIceCandidates(connection, destination) {
+  const status = document.createElement("p");
+  status.id = "ice-diagnostics";
+  status.setAttribute("role", "status");
+  document.querySelector("#ice-diagnostics")?.remove();
+  document.querySelector("#call-status").after(status);
+
+  let generated = 0;
+  let saved = 0;
+  let errors = 0;
+  let lastError = "";
+  function render() {
+    status.textContent = `ICE (${connection.iceGatheringState} / ${connection.iceConnectionState}): ${generated} generados, ${saved} guardados, ${errors} errores de guardado.${lastError ? ` ${lastError}` : ""}`;
+  }
+  for (const event of ["icegatheringstatechange", "iceconnectionstatechange"]) {
+    connection.addEventListener(event, render);
+  }
+  connection.addEventListener("icecandidate", async ({ candidate }) => {
+    if (!candidate?.candidate) return;
+    generated++;
+    render();
+    try {
+      await push(destination, candidate.toJSON());
+      saved++;
+    } catch (error) {
+      errors++;
+      lastError = error.code || "No se pudo guardar en Firebase.";
+    }
+    render();
+  });
+  render();
+}
+
 function listenForEnd() {
   unsubscribeRoom = onValue(roomRef, (snapshot) => {
     const room = snapshot.val();
@@ -174,11 +207,7 @@ async function startCall() {
     await remove(roomRef);
     await prepareMedia();
 
-    peerConnection.addEventListener("icecandidate", async (event) => {
-      if (event.candidate) {
-        await push(callerCandidatesRef, event.candidate.toJSON());
-      }
-    });
+    watchIceCandidates(peerConnection, callerCandidatesRef);
 
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
@@ -231,11 +260,7 @@ async function joinCall() {
     pendingCandidates = [];
     await prepareMedia();
 
-    peerConnection.addEventListener("icecandidate", async (event) => {
-      if (event.candidate) {
-        await push(calleeCandidatesRef, event.candidate.toJSON());
-      }
-    });
+    watchIceCandidates(peerConnection, calleeCandidatesRef);
 
     unsubscribeCandidates = onChildAdded(callerCandidatesRef, async (candidateSnapshot) => {
       await addRemoteCandidate(candidateSnapshot.val());
