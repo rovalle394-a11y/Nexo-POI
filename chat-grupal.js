@@ -173,7 +173,16 @@ directoryReady.then(() => {
         button.type = "button";
         button.id = `group-${id}`;
         button.className = "chat-item group-entry";
-        button.textContent = group.nombre;
+        const avatar = document.createElement("span");
+        avatar.className = "av";
+        avatar.textContent = initials(group.nombre);
+        const label = document.createElement("span");
+        const title = document.createElement("b");
+        title.textContent = group.nombre;
+        const count = document.createElement("small");
+        count.textContent = `${Object.keys(group.miembros).length} integrantes`;
+        label.append(title, count);
+        button.append(avatar, label);
         button.addEventListener("click", () => {
           selectedGroup = group;
           openGroup(button, id, group);

@@ -17,7 +17,7 @@
       <div class="dot g"></div>
     </div>
 
-    <div class="topbar">
+    <div class="topbar home-topbar">
       <div class="logo">Nexo</div>
       <div class="top-right">
         <div class="avatar">AT</div>
@@ -47,10 +47,21 @@
         </a>
       </nav>
 
-      <main class="feed">
-        <section class="post">
-          <h1>Bienvenido a Nexo</h1>
-          <p>Tu espacio para conversar y colaborar con tu equipo.</p>
+      <main class="feed home-feed">
+        <section class="home-welcome" aria-labelledby="welcome-heading">
+          <div class="welcome-copy">
+            <span class="welcome-kicker">TU ESPACIO DE EQUIPO</span>
+            <h1 id="welcome-heading">Bienvenido a Nexo</h1>
+            <p>Un lugar para conversar, compartir ideas y darle seguimiento al trabajo de tu equipo.</p>
+          </div>
+          <svg class="welcome-art" viewBox="0 0 260 225" aria-hidden="true">
+            <circle cx="137" cy="113" r="96" fill="#dbe4d2"/>
+            <circle cx="137" cy="113" r="72" fill="none" stroke="#a7b99f" stroke-dasharray="4 7"/>
+            <path d="M55 63h100a15 15 0 0 1 15 15v45a15 15 0 0 1-15 15H91l-26 17v-17H55a15 15 0 0 1-15-15V78a15 15 0 0 1 15-15Z" fill="#fffdf8" stroke="#879b80" stroke-width="2"/>
+            <path d="M66 90h72m-72 19h48" stroke="#789071" stroke-width="6" stroke-linecap="round"/>
+            <path d="M151 119h57a13 13 0 0 1 13 13v32a13 13 0 0 1-13 13h-5v13l-21-13h-31a13 13 0 0 1-13-13v-32a13 13 0 0 1 13-13Z" fill="#50664b"/>
+            <path d="m161 148 12 11 24-25" fill="none" stroke="#fffdf8" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </section>
       </main>
     </div>

@@ -184,3 +184,26 @@ body {
 .home-shortcuts { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); }
 .home-shortcuts a { display: flex; align-items: center; min-height: 44px; padding: 12px; border: 1px solid #dddccd; border-radius: 10px; background: #eef2e8; color: #344b32; text-decoration: none; }
 .home-shortcuts a:hover { background: #e4e9dd; }
+
+.home-topbar .top-right { margin-inline-start: auto; }
+.home-feed { display: grid; align-content: center; }
+.home-welcome {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(16px, 4vw, 60px);
+  min-height: 320px;
+  padding: clamp(22px, 5vw, 70px);
+  border: 1px solid #d9e1d2;
+  border-radius: 24px;
+  background: linear-gradient(130deg, #fffdf9, #edf2e7);
+}
+.welcome-kicker { color: #50664b; font-size: 12px; font-weight: 700; letter-spacing: .12em; }
+.welcome-copy h1 { margin: 12px 0; color: #273c29; font: 700 clamp(32px, 4.7vw, 66px)/1.06 Georgia, serif; }
+.welcome-copy p { max-width: 40ch; color: #465447; line-height: 1.65; }
+.welcome-art { display: block; width: 100%; max-width: 290px; justify-self: center; }
+@media (max-width: 700px) {
+  .home-feed { align-content: start; }
+  .home-welcome { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+  .welcome-art { max-width: 172px; }
+}
