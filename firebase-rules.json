@@ -86,14 +86,62 @@
         }
       }
     },
+    "tareasPorGrupo": {
+      "$gid": {
+        ".read": "auth != null && root.child('chatsGrupales').child($gid).child('miembros').child(auth.uid).val() === true",
+        "$tid": {
+          ".write": "auth != null && root.child('chatsGrupales').child($gid).child('miembros').child(auth.uid).val() === true && newData.exists() && ((!data.exists() && newData.child('creadorUid').val() === auth.uid && newData.child('creador').val() === root.child('usuarios').child(auth.uid).child('nombre').val() && newData.child('asignadoUid').isString() && newData.child('asignadoUid').val() !== auth.uid && root.child('chatsGrupales').child($gid).child('miembros').child(newData.child('asignadoUid').val()).val() === true && newData.child('asignadoNombre').val() === root.child('usuarios').child(newData.child('asignadoUid').val()).child('nombre').val() && newData.child('completada').val() === false && !newData.child('completadaEn').exists() && !newData.child('completadaPor').exists()) || (data.child('completada').val() === false && data.child('asignadoUid').val() === auth.uid && newData.child('completada').val() === true && newData.child('completadaPor').val() === root.child('usuarios').child(auth.uid).child('nombre').val() && newData.child('completadaEn').isNumber() && newData.parent().parent().parent().child('avanceTareas').child(auth.uid).child($gid).child($tid).val() === newData.child('completadaEn').val() && newData.child('titulo').val() === data.child('titulo').val() && newData.child('fechaLimite').val() === data.child('fechaLimite').val() && newData.child('creador').val() === data.child('creador').val() && newData.child('creadorUid').val() === data.child('creadorUid').val() && newData.child('asignadoUid').val() === data.child('asignadoUid').val() && newData.child('asignadoNombre').val() === data.child('asignadoNombre').val() && newData.child('creadaEn').val() === data.child('creadaEn').val()))",
+          ".validate": "newData.hasChildren(['titulo', 'fechaLimite', 'creador', 'creadorUid', 'asignadoUid', 'asignadoNombre', 'creadaEn', 'completada'])",
+          "titulo": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 80"
+          },
+          "fechaLimite": {
+            ".validate": "newData.isString() && (newData.val() === '' || newData.val().matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/))"
+          },
+          "creadaEn": {
+            ".validate": "newData.isNumber()"
+          },
+          "$other": {
+            ".validate": false
+          },
+          "creador": {
+            ".validate": "newData.isString()"
+          },
+          "creadorUid": {
+            ".validate": "newData.isString()"
+          },
+          "asignadoUid": {
+            ".validate": "newData.isString()"
+          },
+          "asignadoNombre": {
+            ".validate": "newData.isString()"
+          },
+          "completadaPor": {
+            ".validate": "newData.isString()"
+          },
+          "completada": {
+            ".validate": "newData.isBoolean()"
+          },
+          "completadaEn": {
+            ".validate": "newData.isNumber()"
+          }
+        }
+      }
+    },
+    "avanceTareas": {
+      ".read": "auth != null",
+      "$uid": {
+        "$gid": {
+          "$tid": {
+            ".write": "auth != null && $uid === auth.uid && root.child('chatsGrupales').child($gid).child('miembros').child(auth.uid).val() === true && !data.exists() && newData.isNumber() && newData.val() >= now - 10000 && newData.val() <= now && root.child('tareasPorGrupo').child($gid).child($tid).child('completada').val() === false && root.child('tareasPorGrupo').child($gid).child($tid).child('asignadoUid').val() === auth.uid && newData.parent().parent().parent().parent().child('tareasPorGrupo').child($gid).child($tid).child('completada').val() === true && newData.parent().parent().parent().parent().child('tareasPorGrupo').child($gid).child($tid).child('completadaEn').val() === newData.val()"
+          }
+        }
+      }
+    },
     "grupos": {
       "desarrollo-web": {
         "tareas": {
-          ".read": "auth != null",
-          "$tarea": {
-            ".write": "auth != null && newData.exists() && ((!data.exists() && newData.child('creadorUid').val() === auth.uid && newData.child('creador').val() === root.child('usuarios').child(auth.uid).child('nombre').val() && newData.child('completada').val() === false && newData.child('asignadoUid').isString() && newData.child('asignadoUid').val() !== auth.uid && root.child('usuarios').child(newData.child('asignadoUid').val()).exists() && newData.child('asignadoNombre').val() === root.child('usuarios').child(newData.child('asignadoUid').val()).child('nombre').val() && !newData.child('completadaPorUid').exists() && !newData.child('completadaEn').exists() && !newData.child('fechaDia').exists()) || (data.exists() && data.child('completada').val() === false && newData.child('completada').val() === true && (!data.child('asignadoUid').exists() || data.child('asignadoUid').val() === auth.uid) && newData.child('completadaPorUid').val() === auth.uid && newData.child('completadaPor').val() === root.child('usuarios').child(auth.uid).child('nombre').val() && newData.child('titulo').val() === data.child('titulo').val() && newData.child('grupo').val() === data.child('grupo').val() && newData.child('creador').val() === data.child('creador').val() && newData.child('creadorUid').val() === data.child('creadorUid').val() && newData.child('creadaEn').val() === data.child('creadaEn').val() && newData.child('fechaLimite').val() === data.child('fechaLimite').val() && newData.child('asignadoUid').val() === data.child('asignadoUid').val() && newData.child('asignadoNombre').val() === data.child('asignadoNombre').val()))",
-            ".validate": "newData.hasChildren(['titulo', 'grupo', 'creador', 'creadaEn', 'completada']) && newData.child('titulo').isString() && newData.child('titulo').val().length > 0 && newData.child('titulo').val().length <= 80 && newData.child('grupo').val() === 'Desarrollo Web' && newData.child('creador').isString() && newData.child('creadaEn').isNumber() && newData.child('completada').isBoolean() && (newData.child('completada').val() === false || (newData.child('completadaPor').isString() && newData.child('completadaEn').isNumber() && newData.child('fechaDia').isString()))"
-          }
+          ".read": "auth != null"
         }
       }
     },

@@ -1,17 +1,11 @@
 import { database } from "./firebase-config.js";
 import { sessionUser, initials } from "./auth-session.js";
+import { observeTaskProgress } from "./tareas-progreso.js";
 import {
   onValue,
   ref
 } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-database.js";
 
-const users = {
-  "Ana Torres": { initials: "AT", username: "@anatorres" },
-  "Mariana Lopez": { initials: "ML", username: "@marianalopez" },
-  "Diego Martinez": { initials: "DM", username: "@diegomartinez" }
-};
-
-const tasksRef = ref(database, "grupos/desarrollo-web/tareas");
 const otherMedals = document.querySelector("#other-medals");
 const topAvatar = document.querySelector(".top-right .avatar");
 const profileAvatar = document.querySelector("#profile-avatar");
@@ -31,33 +25,11 @@ const medals = [
   { threshold: 30, card: "gold-card", status: "gold-status" }
 ];
 
-let tasks = [];
+let progress = new Map();
+let directory = {};
 
-function getTodayKey() {
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-function getRewardStats(userName) {
-  const completed = tasks.filter((task) => task.completada && task.completadaPorUid === userName);
-  const completedByDay = {};
-
-  completed.forEach((task) => {
-    if (!task.fechaDia) return;
-    completedByDay[task.fechaDia] = (completedByDay[task.fechaDia] || 0) + 1;
-  });
-
-  const valid = Object.values(completedByDay)
-    .reduce((total, count) => total + Math.min(5, count), 0);
-
-  return {
-    completed: completed.length,
-    valid,
-    today: Math.min(5, completedByDay[getTodayKey()] || 0)
-  };
+function getRewardStats(uid) {
+  return progress.get(uid) || { completed: 0, valid: 0, today: 0 };
 }
 
 function updateMedalCard(medal, validTasks) {
@@ -108,10 +80,8 @@ function renderProfile() {
 
 function renderOtherMedals() {
   const members = new Map();
-  for (const task of tasks) {
-    if (task.completada && task.completadaPorUid && task.completadaPorUid !== sessionUser.uid) {
-      members.set(task.completadaPorUid, task.completadaPor || "Integrante");
-    }
+  for (const [uid, stats] of progress) {
+    if (uid !== sessionUser.uid) members.set(uid, directory[uid]?.nombre || stats.name || "Integrante");
   }
   otherMedals.replaceChildren();
   const names = ["Bronce", "Plata", "Oro"];
@@ -132,13 +102,12 @@ function renderOtherMedals() {
   }
 }
 
-onValue(tasksRef, (snapshot) => {
-  tasks = [];
-
-  snapshot.forEach((child) => {
-    tasks.push({ id: child.key, ...child.val() });
-  });
-
+onValue(ref(database, "usuarios"), (snapshot) => {
+  directory = snapshot.val() || {};
+  if (progress.size) renderOtherMedals();
+});
+observeTaskProgress((value) => {
+  progress = value;
   renderProfile();
   renderOtherMedals();
 }, () => {
