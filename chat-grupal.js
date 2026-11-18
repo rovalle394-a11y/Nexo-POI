@@ -1,4 +1,5 @@
 import { database } from "./firebase-config.js";
+import { fechaMensaje } from "./chat-fecha.js";
 import { sessionUser, directoryReady, initials } from "./auth-session.js";
 import { appendChatFile, uploadChatFile } from "./chat-files.js";
 import { createTextPayload, readMessageText } from "./chat-crypto.js";
@@ -245,7 +246,7 @@ form.addEventListener("submit", async (event) => {
       usuario: accountName,
       usuarioUid: sessionUser.uid,
       ...textPayload,
-      fecha: Date.now()
+      ...fechaMensaje()
     });
     input.value = "";
   } catch (error) {
@@ -278,7 +279,7 @@ fileInput.addEventListener("change", async () => {
       usuario: accountName,
       usuarioUid: sessionUser.uid,
       ...textPayload,
-      fecha: Date.now(),
+      ...fechaMensaje(),
       ...fileData
     });
   } catch (error) {

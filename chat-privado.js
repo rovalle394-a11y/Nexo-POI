@@ -1,4 +1,5 @@
 import { database } from "./firebase-config.js";
+import { fechaMensaje } from "./chat-fecha.js";
 import { sessionUser, directoryReady, initials } from "./auth-session.js";
 import { appendChatFile, uploadChatFile } from "./chat-files.js";
 import { createTextPayload, readMessageText } from "./chat-crypto.js";
@@ -137,7 +138,7 @@ async function send(text, file) {
     await push(destination, {
       usuario: sessionUser.displayName || "Usuario",
       usuarioUid: sessionUser.uid,
-      fecha: Date.now(),
+      ...fechaMensaje(),
       ...payload,
       ...attachment
     });
