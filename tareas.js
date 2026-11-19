@@ -1,6 +1,6 @@
 import { database } from "./firebase-config.js";
 import { sessionUser, directoryReady, initials } from "./auth-session.js";
-import { observeTaskProgress } from "./tareas-progreso.js";
+import { observeTaskProgress } from "./tareas-progreso.js?v=actual";
 import {
   get,
   onValue,
@@ -31,7 +31,6 @@ let members = new Map();
 let savingTask = false;
 let groups = new Map();
 let directory = {};
-let legacyTasks = [];
 let groupId = "";
 let unsubscribeTasks;
 let groupRequest = 0;
@@ -70,7 +69,7 @@ function createTaskRow(task) {
   checkbox.type = "checkbox";
   checkbox.checked = Boolean(task.completada);
   const taskGroup = groupId;
-  const canComplete = taskGroup !== "historial" && task.creadorUid === sessionUser.uid;
+  const canComplete = task.creadorUid === sessionUser.uid;
   checkbox.disabled = Boolean(task.completada) || !canComplete;
   checkbox.title = canComplete ? "Marcar como terminada" : "Solo quien creó la tarea puede marcarla como terminada";
   checkbox.setAttribute("aria-label", `Marcar como terminada: ${task.titulo}`);
@@ -80,7 +79,7 @@ function createTaskRow(task) {
     ? `Terminada por ${task.completadaPor}`
     : task.asignadoUid
       ? `Para ${task.asignadoNombre}${task.asignadoUid === sessionUser.uid ? " (tú)" : ""}`
-      : "Compartida (tarea anterior)";
+      : "Sin asignar";
   group.title = `Creada por ${task.creador || "Usuario"}`;
   date.textContent = formatDate(task.fechaLimite);
   status.className = task.completada ? "done" : "pending";
@@ -197,9 +196,8 @@ function updateAssignees() {
   if (members.has(previous)) taskAssignee.value = previous;
   newTaskButton.disabled = taskAssignee.disabled = !options.length;
   saveButton.disabled = savingTask || !options.length;
-  assignmentHelp.textContent = groupId === "historial"
-    ? "Tablero anterior de solo lectura. Las tareas completadas siguen contando para medallas."
-    : group ? "Quien creó la tarea puede marcarla como terminada. El avance cuenta para la persona asignada."
+  assignmentHelp.textContent = group
+    ? "Quien creó la tarea puede marcarla como terminada. El avance cuenta para la persona asignada."
     : "Crea un grupo desde Chats para asignar tareas a sus integrantes.";
 }
 
@@ -213,7 +211,7 @@ function openBoard(id, message) {
   groupId = id;
   taskForm.reset();
   taskForm.hidden = true;
-  tasks = id === "historial" ? legacyTasks : [];
+  tasks = [];
   boardMessage = message || (groups.has(id) ? "Cargando tareas…" : "");
   updateAssignees();
   renderTasks();
@@ -234,11 +232,10 @@ function openBoard(id, message) {
 function refreshGroupOptions() {
   const options = [new Option(groups.size ? "Selecciona un grupo" : "No tienes grupos", "")];
   for (const [id, group] of groups) options.push(new Option(group.nombre, id));
-  if (legacyTasks.length) options.push(new Option("Historial: Desarrollo Web", "historial"));
   groupSelect.replaceChildren(...options);
   groupSelect.disabled = options.length === 1;
   const next = options.some((option) => option.value === groupId && groupId) ? groupId
-    : groups.keys().next().value || (legacyTasks.length ? "historial" : "");
+    : groups.keys().next().value || "";
   groupSelect.value = next;
   if (groupId !== next || !next) openBoard(next, next ? "" : "Todavía no tienes grupos.");
   else updateAssignees();
@@ -250,14 +247,6 @@ directoryReady.then(() => {
   onValue(ref(database, "usuarios"), (snapshot) => {
     directory = snapshot.val() || {};
     updateAssignees();
-  });
-  onValue(ref(database, "grupos/desarrollo-web/tareas"), (snapshot) => {
-    legacyTasks = listTasks(snapshot);
-    if (groupId === "historial") {
-      tasks = legacyTasks;
-      renderTasks();
-    }
-    if (groupRequest) refreshGroupOptions();
   });
   onValue(ref(database, `gruposPorUsuario/${sessionUser.uid}`), async (snapshot) => {
     const request = ++groupRequest;

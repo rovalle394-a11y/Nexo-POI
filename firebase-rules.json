@@ -70,22 +70,6 @@
         }
       }
     },
-    "chats": {
-      "chat-privado": {
-        "mensajes": { ".read": false, ".write": false }
-      },
-      "chat-grupal": {
-        "desarrollo-web": {
-          "mensajes": {
-            ".read": "auth != null",
-            "$mensaje": {
-              ".write": "auth != null && !data.exists() && newData.exists()",
-              ".validate": "newData.hasChildren(['grupo', 'usuario', 'usuarioUid', 'texto', 'fecha']) && newData.child('grupo').val() === 'Desarrollo Web' && newData.child('usuarioUid').val() === auth.uid && newData.child('usuario').isString() && newData.child('texto').isString() && newData.child('texto').val().length > 0 && newData.child('texto').val().length <= 500 && newData.child('fecha').isNumber()"
-            }
-          }
-        }
-      }
-    },
     "tareasPorGrupo": {
       "$gid": {
         ".read": "auth != null && root.child('chatsGrupales').child($gid).child('miembros').child(auth.uid).val() === true",
@@ -137,16 +121,6 @@
           }
         }
       }
-    },
-    "grupos": {
-      "desarrollo-web": {
-        "tareas": {
-          ".read": "auth != null"
-        }
-      }
-    },
-    "videollamadas": {
-      "privada-demo": { ".read": "auth != null", ".write": "auth != null" }
     }
   }
 }

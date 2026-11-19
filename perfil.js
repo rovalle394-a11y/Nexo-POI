@@ -1,6 +1,6 @@
 import { database } from "./firebase-config.js";
 import { sessionUser, initials } from "./auth-session.js";
-import { observeTaskProgress } from "./tareas-progreso.js";
+import { observeTaskProgress } from "./tareas-progreso.js?v=actual";
 import {
   onValue,
   ref
@@ -80,8 +80,8 @@ function renderProfile() {
 
 function renderOtherMedals() {
   const members = new Map();
-  for (const [uid, stats] of progress) {
-    if (uid !== sessionUser.uid) members.set(uid, directory[uid]?.nombre || stats.name || "Integrante");
+  for (const uid of progress.keys()) {
+    if (uid !== sessionUser.uid) members.set(uid, directory[uid]?.nombre || "Integrante");
   }
   otherMedals.replaceChildren();
   const names = ["Bronce", "Plata", "Oro"];

@@ -20,9 +20,9 @@ const input = document.querySelector("#group-message-input");
 const attachButton = document.querySelector("#group-attach-button");
 const fileInput = document.querySelector("#group-file-input");
 const encryptionInput = document.querySelector("#group-encryption");
-const legacyRef = ref(database, "chats/chat-grupal/desarrollo-web/mensajes");
-let messagesRef = legacyRef;
-let activeName = "Desarrollo Web";
+const sendButton = form.querySelector('button[type="submit"]');
+let messagesRef = null;
+let activeName = "";
 let unsubscribe = () => {};
 let renderEpoch = 0;
 
@@ -65,7 +65,7 @@ async function showMessage(message, epoch) {
   avatar.className = "av";
   avatar.textContent = initials(message.usuario);
   bubble.className = "bubble";
-  sender.textContent = message.usuarioUid ? message.usuario : `${message.usuario} · historial anterior`;
+  sender.textContent = message.usuario;
   sender.style.fontSize = "11px";
   text.textContent = await readMessageText(message);
   if (epoch !== renderEpoch) return;
@@ -90,13 +90,12 @@ function openGroup(button, id, group) {
   ++renderEpoch;
   messages.replaceChildren(status);
   status.textContent = "Cargando mensajes...";
-  messagesRef = id ? ref(database, `mensajesGrupales/${id}`) : legacyRef;
-  activeName = group?.nombre || "Desarrollo Web";
+  messagesRef = ref(database, `mensajesGrupales/${id}`);
+  activeName = group.nombre;
+  input.disabled = attachButton.disabled = sendButton.disabled = false;
   document.querySelector("#active-group-name").textContent = activeName;
   document.querySelector("#active-group-avatar").textContent = initials(activeName);
-  document.querySelector("#active-group-members").textContent = group
-    ? memberNames(group).join(", ")
-    : "Chat grupal compartido";
+  document.querySelector("#active-group-members").textContent = memberNames(group).join(", ");
   document.querySelectorAll(".group-entry").forEach((entry) => {
     entry.classList.toggle("active", entry === button);
     if (entry === button) entry.setAttribute("aria-current", "true");
@@ -122,15 +121,9 @@ function openGroup(button, id, group) {
   });
 }
 
-const legacyButton = document.querySelector("#legacy-group");
 let directory = {};
 let selectedGroup = null;
 const memberNames = (group) => Object.keys(group.miembros).map((uid) => directory[uid]?.nombre || "Integrante");
-legacyButton.addEventListener("click", () => {
-  selectedGroup = null;
-  openGroup(legacyButton);
-});
-openGroup(legacyButton);
 
 const createForm = document.querySelector("#create-group");
 const people = document.querySelector("#group-people");
@@ -231,7 +224,7 @@ form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const text = input.value.trim();
 
-  if (!text) {
+  if (!text || !messagesRef) {
     return;
   }
 
@@ -261,7 +254,7 @@ attachButton.addEventListener("click", () => fileInput.click());
 
 fileInput.addEventListener("change", async () => {
   const file = fileInput.files[0];
-  if (!file) return;
+  if (!file || !messagesRef) return;
   const target = messagesRef;
   const groupName = activeName;
 

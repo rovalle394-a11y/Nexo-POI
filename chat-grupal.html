@@ -48,10 +48,6 @@
           <a href="chat-grupal.html" aria-current="page">Grupales</a>
         </nav>
         <div class="group-label">Grupos</div>
-        <button type="button" class="chat-item active group-entry" id="legacy-group" aria-current="true">
-          <span class="av">DW</span>
-          <span><b>Desarrollo Web</b><small>Chat compartido</small></span>
-        </button>
         <div id="my-groups"></div>
         <details class="group-create">
           <summary>Crear grupo</summary>
@@ -69,10 +65,10 @@
 
       <main class="main">
         <div class="chat-head">
-          <div class="av" id="active-group-avatar">DW</div>
+          <div class="av" id="active-group-avatar">G</div>
           <div>
-            <b id="active-group-name">Desarrollo Web</b><br />
-            <small id="active-group-members">Chat grupal compartido</small>
+            <b id="active-group-name">Chats grupales</b><br />
+            <small id="active-group-members">Selecciona un grupo</small>
           </div>
           <label class="encryption-control" for="group-encryption">
             <input id="group-encryption" type="checkbox" />
@@ -81,19 +77,19 @@
         </div>
 
         <div class="msgs" id="group-messages" aria-live="polite">
-          <p class="chat-status" id="group-status">Cargando mensajes...</p>
+          <p class="chat-status" id="group-status">Elige un grupo para ver sus mensajes.</p>
         </div>
 
         <form class="inputbar" id="group-message-form">
-          <button class="attach-button" id="group-attach-button" type="button">Adjuntar</button>
+          <button class="attach-button" id="group-attach-button" type="button" disabled>Adjuntar</button>
           <input class="file-input" id="group-file-input" type="file" accept="image/*,.txt,text/plain" hidden />
-          <input id="group-message-input" placeholder="Escribe un mensaje..." maxlength="500" autocomplete="off" required />
-          <button class="send" type="submit" aria-label="Enviar mensaje">?</button>
+          <input id="group-message-input" placeholder="Escribe un mensaje..." maxlength="500" autocomplete="off" required disabled />
+          <button class="send" type="submit" aria-label="Enviar mensaje" disabled>?</button>
         </form>
       </main>
     </div>
   </div>
-  <script type="module" src="chat-grupal.js"></script>
+  <script type="module" src="chat-grupal.js?v=actual"></script>
   <script type="module" src="auth-session.js"></script>
 </body>
 </html>
